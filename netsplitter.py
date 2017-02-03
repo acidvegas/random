@@ -3,11 +3,6 @@
 # http://github.com/acidvegas
 # netsplit.py
 
-'''
-This is just a simple script to parse all the servers from netsplit.de and store it in a database.
-Stores the server name, address, port, and ssl information in the table.
-'''
-
 import os
 import re
 import sqlite3
