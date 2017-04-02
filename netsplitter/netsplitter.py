@@ -10,7 +10,7 @@ import time
 import urllib.request
 
 # Settings
-throttle = 2
+throttle = 3
 
 # Globals
 db_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'netsplit.db')
@@ -31,7 +31,7 @@ def db_setup():
 def get_source(url):
     req = urllib.request.Request(url)
     req.add_header('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
-    source  = urllib.request.urlopen(req, timeout=10)
+    source  = urllib.request.urlopen(req, timeout=15)
     charset = source.headers.get_content_charset()
     if charset:
         return source.read().decode(charset)
@@ -46,6 +46,7 @@ print('[~] - Found {0} networks on NetSplit.'.format(len(networks)))
 for network in networks:
     source  = get_source('http://irc.netsplit.de/networks/status.php?net=' + network)
     source  = source.replace('style=\'color:#666666;\'', '')
+    source  = source.replace('&#8203;', '')
     while '  ' in source:
         source  = source.replace('  ', ' ')
     checker = re.findall('<td valign="top">.*?<br>((.*?))</td>', source, re.IGNORECASE|re.MULTILINE)
