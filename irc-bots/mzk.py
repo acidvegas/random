@@ -12,13 +12,13 @@ import threading
 import time
 
 # Connection
-server   = 'irc.supernets.org'
+server   = 'irc.server.com'
 port     = 6667
 use_ipv6 = False
 use_ssl  = False
 vhost    = None
 password = None
-channel  = '#dev'
+channel  = '#music'
 key      = None
 
 # Identity
