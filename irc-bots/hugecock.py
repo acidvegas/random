@@ -197,7 +197,7 @@ class IRC(object):
             self.event_connect()
         elif args[1] == '433':
             self.event_nick_in_use()
-        elif args[1] in (''JOIN','KICK','PART','PRIVMSG','QUIT'):
+        elif args[1] in ('JOIN','KICK','PART','PRIVMSG','QUIT'):
             nick  = args[0].split('!')[0][1:]
             ident = args[0].split('!')[1] # Not used, but this is the user@host of the nick.
             if nick != self.nickname:
@@ -214,7 +214,7 @@ class IRC(object):
                 elif args[1] == 'PRIVMSG':
                     chan = args[2]
                     msg  = data.split('{0} PRIVMSG {1} :'.format(args[0], chan))[1]
-                    if chan != self.nickname
+                    if chan != self.nickname:
                         self.event_message(nick, chan, msg)
                 elif args[1] == 'QUIT':
                     self.event_quit(nick)
