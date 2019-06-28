@@ -1,0 +1,11 @@
+#! /bin/sh
+BLUE='\033[1;34m'
+CYAN='\033[0;36m'
+GREY='\033[1;30m'
+RESET='\033[0m'
+YELLOW='\033[0;33m'
+echo -e "\n[${BLUE}RULES${RESET}]"
+echo -e " ${GREY}*${YELLOW} This is a private system that you are not to give out access to anyone"
+echo -e "   without permission from the system admin. No illegal files or activites."
+echo -e " ${GREY}*${YELLOW} Avoid denial of service attacks out of respect for other users on the system."
+echo -e " ${GREY}*${YELLOW} Stay in your home directory, keep the system clean, and make regular backups.\n"

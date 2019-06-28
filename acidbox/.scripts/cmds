@@ -1,0 +1,21 @@
+#! /bin/sh
+BLUE='\033[1;34m'
+CYAN='\033[0;36m'
+GREY='\033[1;30m'
+RESET='\033[0m'
+YELLOW='\033[0;33m'
+echo -e "\n[${BLUE}INFORMATION COMMANDS${RESET}]"
+echo -e " ${GREY}* ${CYAN}colors${YELLOW}\tDisplay terminal color support"
+echo -e " ${GREY}* ${CYAN}contact${YELLOW}\tInformation on how to contact the system administrator"
+echo -e " ${GREY}* ${CYAN}rules${YELLOW}\tDisplay the server rules"
+echo -e " ${GREY}* ${CYAN}vhosts${YELLOW}\tList all of the Virtual Hosts"
+echo -e "\n${RESET}[${BLUE}SESSION COMMANDS${RESET}]"
+echo -e " ${GREY}* ${CYAN}dvtm-help${YELLOW}\tInformation about dvtm and how to use it"
+echo -e " ${GREY}* ${CYAN}rtach${YELLOW}\tReattach to your main abduco session ${GREY}(Create session with startx)"
+echo -e " ${GREY}* ${CYAN}startx${YELLOW}\tStart a dvtm session in abduco ${GREY}(See dvtm-help for more information)"
+echo -e "\n${RESET}[${BLUE}OTHER COMMANDS${RESET}]"
+echo -e " ${GREY}* ${CYAN}backup${YELLOW}\tCreate a backup tar file of your home directory ${GREY}(Saves to the ~/.backup/ directory)"
+echo -e " ${GREY}* ${CYAN}extract${YELLOW}\tExtract any archive format ${GREY}(Usage: extract archive.tar.gz)"
+echo -e " ${GREY}* ${CYAN}rnd${YELLOW}\t\tReturn a random string ${GREY}(Usage: rnd <int>)"
+echo -e " ${GREY}* ${CYAN}tb${YELLOW}\t\tUpload a text files contents to termbin ${GREY}(Usage: cat file.txt | tb)"
+echo -e " ${GREY}* ${CYAN}transfer${YELLOW}\tUpload a file to transfer.sh ${GREY}(Usage: transfer file.tar)\n"

@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+function setup_motd() {
+	RESET='\033[0m'
+	GREEN='\033[0;32m'
+	BGREEN='\033[1;32m'
+	YELLOW='\033[0;33m'
+	CYAN='\033[0;36m'
+	GREY='\033[1;30m'
+	RED='\033[1;31m'
+	BLUE='\033[1;34m'
+	UBLUE='\033[4;34m'
+	echo "╔═══════════════════════╦══════════════════════════════════════════════════════════════╗
+║${GREEN}  ▄▄▄·  ▄▄· ▪  ·▄▄▄▄   ${RESET}║                    ${RED}Connection Notice${RESET}                         ║
+║${GREEN} ▐█ ▀█ ▐█ ▌▪██ ██▪ ██  ${RESET}╟──────────────────────────────────────────────────────────────╢
+║${GREEN} ▄█▀▀█ ██ ▄▄▐█·▐█· ▐█▌ ${RESET}║                                                              ║
+║${GREEN} ▐█ ▪▐▌▐███▌▐█▌██. ██  ${RESET}║ ${YELLOW}This system is for the use of authorized users only.${RESET}         ║
+║${GREEN}  ▀  ▀ ·▀▀▀ ▀▀▀▀▀▀▀▀•  ${RESET}║ ${YELLOW}All connections will be monitored and logged by the system.${RESET}  ║
+║${GREEN} ▄▄▄▄·       ▐▄• ▄     ${RESET}║                                                              ║
+║${GREEN} ▐█ ▀█▪▪      █▌█▌▪    ${RESET}║ ${YELLOW}Connection issues? Contact ${UBLUE}${BLUE}acid.vegas@acid.vegas${YELLOW} for help.${RESET}   ║
+║${GREEN} ▐█▀▀█▄ ▄█▀▄  ·██·     ${RESET}║                                                              ║
+║${GREEN} ██▄▪▐█▐█▌.▐▌▪▐█·█▌    ${RESET}║ ${YELLOW}Right about now, the funk soul brudda. Check it out now...${RESET}   ║
+║${GREEN} ·▀▀▀▀  ▀█▄▀▪•▀▀ ▀▀    ${RESET}║                                                              ║
+╚═══════════════════════╩══════════════════════════════════════════════════════════════╝" > /etc/issue
+	echo "${YELLOW}Hello ${CYAN}$(whoami)${YELLOW}! You are now connected to ${RED}$(hostname)
+${YELLOW}Type ${BGREEN}cmds${YELLOW} to see a list of commands available.${RESET}
+
+[${BLUE}RULES${RESET}]
+ ${GREY}*${YELLOW} This is a private system that you are not to give out access to anyone
+   without permission from the system admin. No illegal files or activites.
+ ${GREY}*${YELLOW} Avoid denial of service attacks out of respect for other users on the system.
+ ${GREY}*${YELLOW} Stay in your home directory, keep the system clean, and make regular backups." > /etc/motd
+}
+
+function setup_user() {
+	sudo useradd -m -G ssh -s /bin/bash $1
+	mkdir /home/$1/.scripts
+	wget -O /home/$1/.bashrc             https://git.supernets.org/acidvegas/acidbox/blob/master/files/.bashrc
+	wget -O /home/$1/.scripts/cmds       https://git.supernets.org/acidvegas/acidbox/blob/master/files/cmds
+	wget -O /home/$1/.scripts/contact    https://git.supernets.org/acidvegas/acidbox/blob/master/files/contact
+	wget -O /home/$1/.scripts/rules      https://git.supernets.org/acidvegas/acidbox/blob/master/files/rules
+	wget -O /home/$1/.scripts/vhosts     https://git.supernets.org/acidvegas/acidbox/blob/master/files/vhosts
+	echo "clear && reset" > /home/$1/.bash_logout
+	echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" > /home/$1/.bash_profile
+}

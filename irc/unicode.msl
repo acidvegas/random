@@ -1,0 +1,26 @@
+alias UTF81 {
+  if ($1 < 161) { return $chr($1) }
+  elseif ($len($base($1,10,2)) < 12) { return $+($chr($calc(192 + $div($1,64))),$chr($calc(128 + [ $1 % 64 ] ))) }
+  elseif ($len($base($1,10,2)) < 17) { return $+($chr($calc(224 + $div($1,4096))),$chr($calc(128 + [ $div($1,64) % 64 ] )),$chr($calc(128 + [ $1 % 64 ] ))) }
+  elseif ($len($base($1,10,2)) < 22) {
+    return $+($chr($calc(240 + $div($1,262144))),$chr($calc(128 + [ $div($1,4096) % 64 ] )),$chr($calc(128 + [ $div($1,64) % 64 ] )),$&
+      $chr($calc(128 + [ $1 % 64 ] )))
+  }
+}
+alias -l div { return $int($calc($1 / $2)) }
+alias UTF8 {
+  if ($version >= 7) return $chr($1)
+  else {
+    var %x $base($1,10,2),%y $len(%x)
+    if ($1 < 161) { return $chr($1) }
+    elseif (%y < 12) { return $+($shift(11000000,$left(%x,-6)),$shift(10000000,$right(%x,6))) }
+    elseif (%y < 17) { return $+($shift(11100000,$left(%x,-12)),$shift(10000000,$mid(%x,-12,6)),$shift(10000000,$right(%x,6))) }
+    elseif (%y < 22) {
+      return $+($shift(11110000,$left(%x,-18)),$shift(10000000,$mid(%x,$iif(%y < 18,$+(-,%y),-18),6)),$shift(10000000,$mid(%x,-12,6)),$shift(10000000,$right(%x,6)))
+    }
+  }
+}
+
+$utf8($rand(123456,999999)) $+ $utf8($rand(123456,999999)) $+ $utf8($rand(123456,999999)) $+
+
+# ^ etc like 100+ times
