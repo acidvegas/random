@@ -1,0 +1,153 @@
+#!/bin/sh
+set -e
+
+CHROOT_BASE="/var/jail"
+
+display_help() {
+	echo "usage: mkchroot [option]"
+	echo -e "\nexample: mkchroot --create=acidvegas bash cp irssi ls mkdir mv rm screen wget"
+	echo -e "\noptions:"
+	echo "  -c, --create=USER   <cmds>  create a new chroot jail"
+	echo "  -d, --destroy=USER          destroy a chroot jail"
+	echo "  -l, --list                  list chroot jails"
+	echo "  -h, --help                  display this help and exit"
+}
+
+create_jail() {
+	[ $EUID -ne 0 ] && echo "insufficent privledges" && exit 1
+	if [ ${#1} -ne 2 ]; then
+		CHROOT_USER="${1#*=}"
+		CHROOT_CMDS="${@:2}"
+	else
+		CHROOT_USER=$2
+		CHROOT_CMDS="${@:3}"
+	fi
+	CHROOT_DIR="$CHROOT_BASE/$CHROOT_USER"
+	CHROOT_PWD="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 25 | head -n 1)"
+	[ -d $CHROOT_DIR ] && echo "chroot jail already exists for $CHROOT_USER at $CHROOT_DIR" && exit 1
+	echo "creating initial directory structure..."
+	mkdir -v $CHROOT_DIR
+	mkdir -pv $CHROOT_DIR/{dev,etc,home,proc,usr}
+	mkdir -v $CHROOT_DIR/dev/pts
+	mkdir -v $CHROOT_DIR/home/$CHROOT_USER
+	mkdir -v $CHROOT_DIR/usr/share
+	echo "making required devices nodes..."
+	mknod -m 666 $CHROOT_DIR/dev/null c 1 3
+	echo "created device node: $CHROOT_DIR/dev/null"
+	mknod -m 666 $CHROOT_DIR/dev/tty c 5 0
+	echo "created device node: $CHROOT_DIR/dev/tty"
+	mknod -m 666 $CHROOT_DIR/dev/random c 1 8
+	echo "created device node: $CHROOT_DIR/dev/random"
+	mknod -m 666 $CHROOT_DIR/dev/zero c 1 5
+	echo "created device node: $CHROOT_DIR/dev/zero"
+	echo "copying required shared libraries..."
+	for x in ${CHROOT_CMDS[@]}; do
+		for y in $(ldd $(which $x)|grep -v dynamic|cut -d " " -f 3|sed 's/://'|sort|uniq); do
+			cp --parents -v $y $CHROOT_DIR
+		done
+	done
+	echo "copying additional required files..."
+	if [ ! -d $CHROOT_DIR/bin ] && [ -d $CHROOT_DIR/usr/bin ]; then
+		cp -r $CHROOT_DIR/usr/bin $CHROOT_DIR/bin	# This can be improved.
+	fi
+	if [ ! -d $CHROOT_DIR/lib ] && [ -d $CHROOT_DIR/usr/lib ]; then
+		cp -r $CHROOT_DIR/usr/lib $CHROOT_DIR/lib	# This can be improved.
+	fi
+	cp -v /etc/{hosts,ld.so.cache,ld.so.conf,localtime,nsswitch.conf,resolv.conf} $CHROOT_DIR/etc/
+	cp -v /lib/ld-linux.so.* $CHROOT_DIR/lib/
+	cp -rv /lib/terminfo/ $CHROOT_DIR/lib/
+	cp -rv /usr/share/terminfo/ $CHROOT_DIR/usr/share/
+	grep $CHROOT_USER /etc/passwd > $CHROOT_DIR/etc/passwd
+	grep $CHROOT_USER /etc/group  > $CHROOT_DIR/etc/group
+	grep $CHROOT_USER /etc/shadow > $CHROOT_DIR/etc/shadow
+	echo -e "[[ \$- != *i* ]] && return\nalias ls='ls --color=auto'\nPS1='\e[1;30mjail\e[0m | \e[1;34m> \e[0;32m\w \e[0;37m: '" > $CHROOT_DIR/home/$CHROOT_USER/.bash_profile
+	if ! id $CHROOT_USER >/dev/null 2>&1; then
+		useradd -s /bin/bash -M -p $CHROOT_PWD $CHROOT_USER
+		echo "added $CHROOT_USER user"
+	fi
+	if [ ! $(getent group jail) ]; then
+		groupadd jail
+		echo "added jail group"
+	fi
+	if ! getent group jail | grep &>/dev/null "\b${CHROOT_USER}\b"; then
+		gpasswd -a $CHROOT_USER jail
+		echo "added $CHROOT_USER to jail group"
+	fi
+	echo "setting permissions..."
+	chown -v root:root $CHROOT_DIR
+	chown -v root:tty $CHROOT_DIR/dev/tty
+	chown -v $CHROOT_USER:$CHROOT_USER $CHROOT_DIR/home/$CHROOT_USER
+	chmod -Rv 755 $CHROOT_DIR/home/$CHROOT_USER
+	chattr +i $CHROOT_DIR/etc/group
+	chattr +i $CHROOT_DIR/etc/hosts
+	chattr +i $CHROOT_DIR/etc/nsswitch.conf
+	chattr +i $CHROOT_DIR/etc/passwd
+	chattr +i $CHROOT_DIR/etc/resolv.conf
+	chattr +i $CHROOT_DIR/etc/shadow
+	echo "mounting pseudoterminal slave device on $CHROOT_DIR/dev/pts"
+	if ! grep -q "devpts $CHROOT_DIR/dev/pts devpts rw,noatime,mode=600,ptmxmode=000 0 0" /etc/fstab; then
+		echo -e "\ndevpts $CHROOT_DIR/dev/pts devpts rw,noatime,mode=600,ptmxmode=000 0 0" >> /etc/fstab
+		mount -av
+	fi
+	if ! grep -q "proc $CHROOT_DIR/proc proc rw,noatime,gid=26,hidepid=2 0 0" /etc/fstab; then
+		echo -e "\nproc $CHROOT_DIR/proc proc rw,noatime,gid=26,hidepid=2 0 0" >> /etc/fstab
+		mount -av
+	fi
+	if grep -q "AuthorizedKeysFile" /etc/ssh/sshd_config; then
+		if ! grep -q "AuthorizedKeysFile /etc/ssh/authorized_keys/%u" /etc/ssh/sshd_config; then
+			sed 's/AuthorizedKeysFile.*/AuthorizedKeysFile /etc/ssh/authorized_keys/%u/' /etc/ssh/sshd_config > /etc/ssh/sshd_config
+			echo "updated sshd_config with AuthorizedKeysFile"
+		fi
+	else
+		sed -i "1iAuthorizedKeysFile /etc/ssh/authorized_keys/%u" /etc/ssh/sshd_config
+	fi
+	if ! grep $'Match Group jail\n\tChrootDirectory /var/jail/%u' /etc/ssh/sshd_config; then
+		echo -e "\nMatch Group jail\n\tChrootDirectory /var/jail/%u" >> /etc/ssh/sshd_config
+		echo "updated sshd_config with ChrootDirectory"
+	fi
+	echo -e "\nchroot jail for $CHROOT_USER created at $CHROOT_DIR"
+	echo "password for $CHROOT_USER is: $CHROOT_PWD"
+}
+
+destroy_jail() {
+	[ $EUID -ne 0 ] && echo "insufficent privledges" && exit 1
+	if [[ ${#1} -ne 2 ]]; then
+		CHROOT_USER="${1#*=}"
+	else
+		CHROOT_USER=$2
+	fi
+	CHROOT_DIR="$CHROOT_BASE/$CHROOT_USER"
+	if mount | grep -q "$CHROOT_DIR/dev/pts"; then
+		umount -v $CHROOT_DIR/dev/pts
+		echo "unmounted pseudoterminal slave device"
+	fi
+	if mount | grep -q "$CHROOT_DIR/proc"; then
+		umount -v $CHROOT_DIR/proc
+		echo "unmounted proc device"
+	fi
+	if [ -d $CHROOT_DIR ]; then
+		chattr -i $CHROOT_DIR/etc/*
+		rm -rfv $CHROOT_DIR
+	fi
+	if id $CHROOT_USER >/dev/null 2>&1; then
+		userdel -f $CHROOT_USER
+		echo "deleted $CHROOT_USER user"
+	fi
+	echo "jail destroyed"
+}
+
+list_jails() {
+	CHROOT_DIRS=$(getent group jail | cut -d: -f4 | sed 's/,/ /g')
+	for i in ${CHROOT_DIRS[@]}; do
+		echo " * $i"
+	done
+}
+
+[ "$#" -eq 0 ] && echo -e "invalid or missing arguments\n" && display_help && exit 1
+case $1 in
+	-c|--create=*)  create_jail  "$@" ;;
+	-d|--destroy=*) destroy_jail "$@" ;;
+	-l|--list)      list_jails        ;;
+	-h|--help)      display_help      ;;
+	*) echo -e "invalid or missing arguments\n"; display_help ; exit 1;;
+esac

@@ -35,11 +35,11 @@ secret = input('secret : ') or pyotp.random_base32()
 uri = pyotp.totp.TOTP(secret).provisioning_uri(name, issuer)
 qr = qrgen(uri).replace(' ', ' ')[:-1]
 max_len = len(qr.split('\n')[1])
-print(uri+'\n'+qr)
+print(f'{uri}\n{qr}')
 del name, issuer, uri, qr
 while True:
 	code = pyotp.TOTP(secret).now()
 	seconds = int(time.strftime('%S'))
 	remain = 60-seconds if seconds >= 30 else 30-seconds
-	print(f'{code} ({remain})'.center(max_len),  end='\r')
+	print(f'{code} ({remain})'.center(max_len), end='\r')
 	time.sleep(1)

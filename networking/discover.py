@@ -4,7 +4,7 @@ import subprocess
 def portscan(ip):
 	ports = list()
 	try:
-		cmd = subprocess.check_output('sudo nmap -F ' + ip, shell=True).decode()
+		cmd = subprocess.check_output('nmap -F ' + ip, shell=True).decode()
 		output = cmd.split('SERVICE')[1].split('MAC')[0].split('\n')
 		for item in output:
 			port = item.split('/')[0]
@@ -17,7 +17,7 @@ def portscan(ip):
 def scanhosts(subnet):
 	data = list()
 	matrix = {'ip':list(),'host':list(),'ports':list()}
-	cmd = subprocess.check_output(f'sudo nmap -sP {subnet}/24', shell=True).decode()
+	cmd = subprocess.check_output(f'nmap -sP {subnet}/24', shell=True).decode()
 	output = cmd.split('Nmap scan report for ')[1:-1]
 	for item in output:
 		ip    = item.split('\n')[0]

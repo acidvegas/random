@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-function setup_motd() {
+setup_motd() {
 	RESET='\033[0m'
 	GREEN='\033[0;32m'
 	BGREEN='\033[1;32m'
@@ -11,7 +11,7 @@ function setup_motd() {
 	RED='\033[1;31m'
 	BLUE='\033[1;34m'
 	UBLUE='\033[4;34m'
-	echo "╔═══════════════════════╦══════════════════════════════════════════════════════════════╗
+	echo -e "╔═══════════════════════╦══════════════════════════════════════════════════════════════╗
 ║${GREEN}  ▄▄▄·  ▄▄· ▪  ·▄▄▄▄   ${RESET}║                    ${RED}Connection Notice${RESET}                         ║
 ║${GREEN} ▐█ ▀█ ▐█ ▌▪██ ██▪ ██  ${RESET}╟──────────────────────────────────────────────────────────────╢
 ║${GREEN} ▄█▀▀█ ██ ▄▄▐█·▐█· ▐█▌ ${RESET}║                                                              ║
@@ -33,7 +33,7 @@ ${YELLOW}Type ${BGREEN}cmds${YELLOW} to see a list of commands available.${RESET
  ${GREY}*${YELLOW} Stay in your home directory, keep the system clean, and make regular backups." > /etc/motd
 }
 
-function setup_user() {
+setup_user() {
 	sudo useradd -m -G ssh -s /bin/bash $1
 	mkdir /home/$1/.scripts
 	wget -O /home/$1/.bashrc             https://git.supernets.org/acidvegas/acidbox/blob/master/files/.bashrc
@@ -44,3 +44,5 @@ function setup_user() {
 	echo "clear && reset" > /home/$1/.bash_logout
 	echo "[[ -f ~/.bashrc ]] && . ~/.bashrc" > /home/$1/.bash_profile
 }
+
+setup_motd
