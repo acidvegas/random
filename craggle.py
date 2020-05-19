@@ -3,6 +3,7 @@
 
 '''
 Random script to parse all the countries, states, cities, & sections/sub-sections on CraigsList
+Dont know what I am doing with this yet...
 '''
 
 import re, time, urllib.request

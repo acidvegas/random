@@ -1,40 +1,30 @@
 # GPG Cheat Sheet
 
 ## Create a key
-`gpg --expert --full-generate-key`
-* RSA (set your own capabilities)
-* Set to Certify only.
-* 4096
-* 2020-01-01
-
-`gpg --expert --edit-key <userid>`
-* `addkey` (Create 3, one for sign, encrypt, authenticate)
-* `adduid`
-* `save`
+* `gpg --expert --full-generate-key`
+	* RSA (set your own capabilities)
+	* Set to Certify only
+	* 4096
+	* 2020-01-01
+* `gpg --expert --edit-key <userid>`
+	* `addkey` (Create 3, one for sign, encrypt, authenticate)
+	* `addphoto` *(240x288)*
+	* `save`
+	* `quit`
+* `gpg -a --output revoke.asc --gen-revoke '<fingerprint>'`
 
 ## Backup key
-* `mv ~/.gnupg/secring.gpg ~/.backup/gpg/`
-* `mv ~/.gnupg/pubring.gpg ~/.backup/gpg/`
-* `gpg -a --export-secret-key <userid> > secret_key.gpg`
+* `gpg -a --export-secret-key     <userid> > secret_key.gpg`
 * `gpg -a --export-secret-subkeys <userid> > secret_subkeys.gpg`
 * `gpg --delete-secret-keys <userid>`
 * `gpg --import secret_subkeys.gpg`
 * `gpg --list-secret-keys`
-* `rm secret_subkeys.gpg`
-
-## Revoke cert
-* `gpg -a --output revoke.asc --gen-revoke '<fingerprint>'`
+* `gpg --edit-key <KEYID>` *(type `trust` and press `5`)*
 
 ## Import/Export public key
 * `gpg --import public.key`
 * `gpg --output public.key --armor --export <userid>`
-
-## Import/Export private key
 * `gpg --export-secret-keys --armor <userid> > privkey.asc`
-* `gpg --import privkey.asc`
-
-## Edit keys
-* `gpg --edit-key <userid>`
 
 ## List (secret) keys
 * `gpg --list-keys`
@@ -55,18 +45,14 @@ or...
 * `gpg --output doc.sig --detach-sig doc`
 
 ## Verify
-* `gpg --verify doc.sig`
-* `gpg --verify archlinux-version.iso.sig`
-* `gpg --verify archlinux-version.iso.sig /path/to/archlinux-version.iso`
+* `gpg --verify example.sig`
+* `gpg --verify example.sig /path/to/example.iso`
 * `gpg --with-fingerprint <keyfile>`
 
 ## Send keys
-* `gpg --send-keys <userid>`
-* `gpg --refresh-keys`
-
-## Get keys
-* `gpg --recv-key '<fingerprint>'`
-* `gpg --fingerprint '<fingerprint>'`
+* `gpg --keyserver <keyserver> --send-keys <user-id>`
+* `gpg --recv-key '<fingerprint> && gpg --fingerprint '<fingerprint>'`
+* `gpg --search-keys '<userid>'`
 
 ## Sign key
 * `gpg --lsign-key '<fingerprint>'`

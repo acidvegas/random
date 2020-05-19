@@ -1,0 +1,5 @@
+#!/bin/sh
+#usage: ovh6 IPV6_ADDRESS IPV6_GATEWAY
+ip addr add $1/64 dev eth0
+ip -6 route add $2 dev eth0
+ip -6 route add default via $2 dev eth0

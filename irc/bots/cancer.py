@@ -132,8 +132,7 @@ class IRC(object):
 			self.listen()
 
 	def create_socket(self):
-		family = socket.AF_INET6 if use_ipv6 else socket.AF_INET
-		self.sock = socket.socket(family, socket.SOCK_STREAM)
+		self.sock = socket.socket(socket.AF_INET6) if use_ipv6 else socket.socket()
 		if vhost:
 			self.sock.bind((vhost, 0))
 		if use_ssl:

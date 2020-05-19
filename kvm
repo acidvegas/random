@@ -1,0 +1,2 @@
+#!/bin/sh
+sh -c 'sleep 1.0; xdotool type $PASSWORD'

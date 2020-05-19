@@ -90,9 +90,9 @@ def get_data(coin, start_time, end_time):
 
 CMC         = CoinMarketCap()
 ticker_data = CMC._ticker()
-start_time  = int((datetime.datetime.now()-datetime.timedelta(days=7)).timestamp()*1000)
+start_time  = int((datetime.datetime.now()-datetime.timedelta(days=180)).timestamp()*1000)
 end_time    = int(datetime.datetime.now().timestamp()*1000)
-coins       = [item['id'] for item in ticker_data] #[:10]
+coins       = [item['id'] for item in ticker_data][:10]
 data        = [get_data(coin, start_time, end_time) for coin in coins]
 data        = sorted(data, key=lambda k: float(k['std']), reverse=True)
 generate_table(data)

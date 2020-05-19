@@ -34,7 +34,7 @@ ${YELLOW}Type ${BGREEN}cmds${YELLOW} to see a list of commands available.${RESET
 }
 
 setup_user() {
-	sudo useradd -m -G ssh -s /bin/bash $1
+	sudo useradd -m -s /bin/bash $1
 	mkdir /home/$1/.scripts
 	wget -O /home/$1/.bashrc             https://git.supernets.org/acidvegas/acidbox/blob/master/files/.bashrc
 	wget -O /home/$1/.scripts/cmds       https://git.supernets.org/acidvegas/acidbox/blob/master/files/cmds

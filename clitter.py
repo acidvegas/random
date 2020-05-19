@@ -4,6 +4,9 @@
 '''
 Requirements:
 	Tweepy (http://pypi.python.org/pypi/tweepy)
+
+Todo:
+	Fuck tweepy, convert this shit to pure python, no 3rd party libs. Oh wait I hardly ever use Twatter...
 '''
 
 import sys

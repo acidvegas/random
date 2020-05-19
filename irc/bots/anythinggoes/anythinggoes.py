@@ -4,7 +4,7 @@
 import random,socket,ssl,threading,time
 
 # Config
-admin_ident       = 'ak!ak@super.nets'
+admin_ident       = 'acidvegas!*@*'
 channel           = '#anythinggoes'
 nickserv_password = 'CHANGEME'
 operator_password = 'CHANGEME'
@@ -166,16 +166,18 @@ class IRC(object):
 
 	def connect(self):
 		try:
-			self.sock=ssl.wrap_socket(socket.socket(socket.AF_INET,socket.SOCK_STREAM))
-			self.sock.connect(('irc.supernets.org',6697))
+			self.sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+			self.sock.connect(('irc.supernets.org',6667))
 			self.raw(f'USER THEG 0 * :YOU LOST THE GAME')
 			self.raw('NICK THEGAME')
 			while True:
 				data = self.sock.recv(1024).decode('utf-8')
+				print(data)
 				for line in (line for line in data.split('\r\n') if len(line.split()) >= 2):
 					print(f'{get_time()} | [~] - {line}')
 					args = line.split()
-					if args[0]=='PING':self.raw('PONG '+args[1][1:])
+					if args[0]=='PING':
+						self.raw('PONG '+args[1][1:])
 					elif args[1]=='001':
 						self.raw('MODE THEGAME +BDd')
 						self.sendmsg('NickServ','IDENTIFY THEGAME '+nickserv_password)
@@ -195,7 +197,9 @@ class IRC(object):
 						if chan==channel:self.event_message(ident,nick,chan,msg)
 					elif args[1]=='QUIT':Functions.grave(args[0].split('!')[0][1:])
 		except(UnicodeDecodeError,UnicodeEncodeError):pass
-		except:self.sock.close()
+		except Exception as ex:
+			print(ex)
+			self.sock.close()
 		time.sleep(15)
 		self.connect()
 
@@ -210,7 +214,7 @@ class IRC(object):
 			elif msg=='refresh':
 				self.nicks=list()
 				self.raw('NAMES #anythinggoes')
-			elif msg=='!wormnet' and not self.wormnet and ident==admin_ident:WORMS.start()
+			elif msg=='!wormnet':WORMS.start()
 			elif msg=='!worms':
 				for line in worms_data:self.sendmsg(channel, line)
 			elif len(args)==2:
