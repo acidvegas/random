@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Amber Alert IRC Bot - Developed by acidvegas & blowfish in Python (https://acid.vegas/amber)
+# Amber Alert IRC Bot - Developed by acidvegas & blowfish in Python (https://acid.vegas/random)
 # amber.py
 
 import asyncio
