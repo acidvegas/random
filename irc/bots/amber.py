@@ -1,20 +1,10 @@
 #!/usr/bin/env python
 # Amber Alert IRC Bot - Developed by acidvegas & blowfish in Python (https://acid.vegas/random)
-# amber.py
 
 import asyncio
 import random
 import ssl
 import textwrap
-import time
-
-import config
-
-class config:
-	server   = 'irc.supernets.org'
-	channel  = '#superbowl'
-	nickname = 'AMBERALERT'
-	ident      = {'nickname':'AMBERALERT', 'username':'missing', 'realname':'IRC Amber Alert Bot', 'nickserv':None}
 
 def ascii(nick):
 	age    = '{0!s}{1}'.format(random.randint(12,90), random.choice(['',' AND HALF']))
