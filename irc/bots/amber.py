@@ -68,7 +68,7 @@ class IRC:
 	async def _event_end_of_names(self):
 		self.scanning = False
 		for name in self.names['found']:
-			self._raw('WHOIS ' + name)
+			self._raw(f'WHOIS {name} {name}') # Have to double to nick to see far-connected idle times? Weird...
 			await asyncio.sleep(2)
 		if self.names['idle']:
 			target = random.choice(self.names['idle'])
