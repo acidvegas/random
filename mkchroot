@@ -1,4 +1,6 @@
 #!/bin/sh
+# developed by acidvegas (https://acid.vegas/random)
+
 set -e
 
 CHROOT_BASE="/var/jail"

@@ -10,7 +10,7 @@ Requirements:
 import io, sys, time
 
 try:
-	import pyotp, qrcode
+	import pyotp
 except ImportError:
 	raise SystemExit('missing required \'pyotp\' module! (https://pypi.org/project/pyotp/)')
 try:

@@ -7,7 +7,7 @@
 | d    | can only see messages prefixed with `!@$.                            |                 |
 | D    | can only receive private messages from operators, servers & services |                 |
 | H    | hide operator status in WHOIS                                        | oper-only       |
-| I    | hide online time in WHOIS                                            | oper-only       |
+| I    | hide online time in WHOIS                                            |                 |
 | i    | hidden from WHO & NAMES if queried from outside the channel          |                 |
 | o    | network operator                                                     | set by server   |
 | p    | hide your channels in WHOIS                                          |                 |
@@ -23,15 +23,34 @@
 | Z    | can only send/receive private messages with ssl/tls users            |                 |
 | z    | indicates connected via ssl/tls                                      | set by server   |
 
+#### Snomasks
+| Snomask | Description
+| ------- | ----------
+| b       | dns blacklist hits      |
+| c       | local connects          |
+| F       | far connects            |
+| f       | flood notices           |
+| k       | kills                   |
+| e       | eyes notices *(verbose)*  |
+| j       | junk notices *(noisy)*    |
+| v       | VHOST usage             |
+| G       | GLINE and SHUN usage    |
+| n       | local nick changes      |
+| N       | remote nick changes     |
+| q       | QLINE rejection notices |
+| s       | server notices          |
+| S       | spamfilter hits         |
+| o       | oper notices            |
+
 #### Channel Modes
 ###### Access Levels
-| Mode | Description                                              | Restriction     |
-| ---- | -------------------------------------------------------- | --------------- |
-| v	   | voice  - able to speak in +m/+M channels                 | +h              |
-| h	   | halfop - has most of the privledges as op                | +o              |
-| o	   | op     - full privledges                                 | +o              |
-| a	   | admin  - same as op except can not be kick by +ho users  | +q              |
-| q    | owner  - same as op except can not be kick by +hoa users | set by services |
+| Mode | Name   | Description                                     | Restriction     |
+| ---- | ------ | ----------------------------------------------- | --------------- |
+| v	   | voice  | able to speak in +m/+M channels                 | +h              |
+| h	   | halfop | has most of the privledges as op                | +o              |
+| o	   | op     | full privledges                                 | +o              |
+| a	   | admin  | same as op except can not be kick by +ho users  | +q              |
+| q    | owner  | same as op except can not be kick by +hoa users | set by services |
 
 ###### List Modes
 | Mode | Description           | Restriction |
