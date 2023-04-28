@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# BadParent IRC Bot - Developed by acidvegas in Python (https://acid.vegas/trollbots)
+# BadParent IRC Bot - Developed by acidvegas in Python (https://acid.vegas/random)
 # badparent.py
 
 '''

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# developed by acidvegas in python (https://acid.vegas/random)
 import re,sys,urllib.request
 if len(sys.argv)!=2:raise SystemExit('error: invalid arguments')
 source=urllib.request.urlopen(f'https://{sys.argv[1]}.bandcamp.com/music').read().decode('utf-8')
