@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Ident Protocol Daemon - Developed by acidvegas in Python (https://acid.vegas/random)
+# ident protocol daemon - developed by acidvegas in Python (https://acid.vegas/random)
 
 import os
 import random
@@ -72,6 +72,7 @@ class Identd(threading.Thread):
 			return data + ' : ERROR : INVALID-PORT'
 		return data + ' : USERID : UNIX : ' + random_str(5)
 
+# Main
 if not check_privledges():
 	raise SystemExit('requires sudo privledges to bind to port 113')
 Identd(socket.AF_INET,  '0.0.0.0', 113).start()
