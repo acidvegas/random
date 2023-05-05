@@ -4,6 +4,7 @@ _data=$(git log -1 --graph --pretty=format:"%h|%s|%cn")
 _hash=$(echo "$_data" | cut -d'|' -f1 | cut -c 3-)
 _msg=$(echo "$_data" | cut -d'|' -f2)
 
+echo $(dirname $GIT_DIR)
 _name=$(echo "$_data" | cut -d'|' -f3)
 
 _repo=$(basename -s .git $(git config --get remote.origin.url))
