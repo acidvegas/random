@@ -1,0 +1,24 @@
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\bin\Debug\gskBot.exe.config
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\obj\Debug\gskBot.csprojResolveAssemblyReference.cache
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\bin\Debug\gskBot.exe
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\bin\Debug\gskBot.pdb
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\obj\Debug\gskBot.exe
+c:\users\kayla\documents\visual studio 2013\Projects\gskBot\gskBot\obj\Debug\gskBot.pdb
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\bin\Debug\gskBot.exe.config
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\bin\Debug\gskBot.exe
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\bin\Debug\gskBot.pdb
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\obj\Debug\gskBot.csprojResolveAssemblyReference.cache
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\obj\Debug\gskBot.exe
+C:\Users\Kayla\Desktop\c#\gskBot\gskBot\obj\Debug\gskBot.pdb
+D:\dev\c#\gskBot\gskBot\bin\Debug\gskBot.exe.config
+D:\dev\c#\gskBot\gskBot\bin\Debug\gskBot.exe
+D:\dev\c#\gskBot\gskBot\bin\Debug\gskBot.pdb
+D:\dev\c#\gskBot\gskBot\obj\Debug\gskBot.csprojResolveAssemblyReference.cache
+D:\dev\c#\gskBot\gskBot\obj\Debug\gskBot.exe
+D:\dev\c#\gskBot\gskBot\obj\Debug\gskBot.pdb
+C:\Users\john\Desktop\gskBot\gskBot\bin\Debug\gskBot.exe.config
+C:\Users\john\Desktop\gskBot\gskBot\bin\Debug\gskBot.exe
+C:\Users\john\Desktop\gskBot\gskBot\bin\Debug\gskBot.pdb
+C:\Users\john\Desktop\gskBot\gskBot\obj\Debug\gskBot.csprojResolveAssemblyReference.cache
+C:\Users\john\Desktop\gskBot\gskBot\obj\Debug\gskBot.exe
+C:\Users\john\Desktop\gskBot\gskBot\obj\Debug\gskBot.pdb

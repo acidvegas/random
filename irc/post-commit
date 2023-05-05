@@ -3,14 +3,12 @@
 _data=$(git log -1 --graph --pretty=format:"%h|%s|%cn")
 _hash=$(echo "$_data" | cut -d'|' -f1 | cut -c 3-)
 _msg=$(echo "$_data" | cut -d'|' -f2)
-
-echo $GIT_DIR
-_name=$(echo "$_data" | cut -d'|' -f3)
-
+#_name=$(echo "$_data" | cut -d'|' -f3)
+_name=$(basename $(dirname $(git rev-parse --show-toplevel))) # Local hack to parse out ircart/supernets organizations
 _repo=$(basename -s .git $(git config --get remote.origin.url))
 _summary=$(git show $_hash --stat | grep -E "fil(e|es) changed" | awk '{files+=$1; inserted+=$4; deleted+=$6} END {printf "%s|+%s|-%s", files, inserted, deleted }')
 _files=$(echo $_summary | cut -d'|' -f1)
 _inserts=$(echo $_summary | cut -d'|' -f2)
 _deletes=$(echo $_summary | cut -d'|' -f3)
 _ircmsg="irc.supernets.#superbowl *14[11GitHub14] Commit pushed to 08$_name/$_repo (06$_hash) 14[$_files14|03$_inserts14|04$_deletes14] : $_msg"
-#echo "$_ircmsg" | ssh contra tee "$HOME/.weechat/weechat_fifo" > /dev/null
+echo "$_ircmsg" | ssh contra tee "$HOME/.weechat/weechat_fifo" > /dev/null

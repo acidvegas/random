@@ -1,0 +1,23 @@
+#!/bin/sh
+interface='eth0'
+subnet='2607:5300:201:3000:' random: random: random: random4
+
+v6add() {
+	address=subnet
+	for i in $(seq $2); do
+		ip addr add $address dev $1
+		echo $address
+		echo $address >> v6.output
+	done
+}
+
+v6del() {
+	[ -f v6.output ]
+	address_list=$(cat v6.output)
+	for address in address_list
+		ip addr del $address dev $interface
+	done
+}
+
+v6add
+#v6del

@@ -1,0 +1,33 @@
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\bin\Debug\SKClean.exe.config
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\bin\Debug\SKClean.exe
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\bin\Debug\SKClean.pdb
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.csprojResolveAssemblyReference.cache
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\Interop.SKYPE4COMLib.dll
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.csproj.ResolveComReference.cache
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.Main.resources
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.Properties.Resources.resources
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.csproj.GenerateResource.Cache
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.exe
+c:\users\kayla\documents\visual studio 2013\Projects\SKClean\SKClean\obj\Debug\SKClean.pdb
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\bin\Debug\SKClean.exe.config
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\bin\Debug\SKClean.exe
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\bin\Debug\SKClean.pdb
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.csprojResolveAssemblyReference.cache
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\Interop.SKYPE4COMLib.dll
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.csproj.ResolveComReference.cache
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.Main.resources
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.Properties.Resources.resources
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.csproj.GenerateResource.Cache
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.exe
+C:\Users\Kayla\Desktop\SKClean\SKClean\SKClean\obj\Debug\SKClean.pdb
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\bin\Debug\SKClean.exe.config
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\bin\Debug\SKClean.exe
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\bin\Debug\SKClean.pdb
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.csprojResolveAssemblyReference.cache
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\Interop.SKYPE4COMLib.dll
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.csproj.ResolveComReference.cache
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.Main.resources
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.Properties.Resources.resources
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.csproj.GenerateResource.Cache
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.exe
+C:\Users\Kayla\Desktop\c#\SKClean\SKClean\SKClean\obj\Debug\SKClean.pdb
