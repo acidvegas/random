@@ -5,14 +5,21 @@
 This script contains a dictionary of keyboard typable characters unicode variants that are very similar.
 Other possible variants exist, for now we are only matching the ones that do not "look" like unicode.
 This can be used to evade spam filtering by replacing characters with their similar unicode variants.
+
+Todo:
+	- Convert unicode characters into raw codepoints in the dictionary (Example: \u202e)
+	- Add variants for missing typable characters (iIl)
+	- Extend to more variants than already in the database
+	- Set different odds on character replacement for chance feature on the confuse function
 '''
 
 import random
 
-def confuse(data):
+def confuse(data, chance=False):
+	'''chance set to True will give each replacable character a 50% chance of being replaced'''
 	confused = str()
 	for char in data:
-		if char in confusable:
+		if char in confusable and (not chance or random.choice((True,False))):
 			confused += random.choice(list(confusable[char]))
 		else:
 			confused += char
@@ -32,11 +39,11 @@ confusable = {
 	'>':'ᐳ＞',
 	'?':'？',
 	'@':'＠',
-	'0':'OΟОՕ௦౦೦ഠဝ၀ჿዐᴏᴑⲞⲟⵔ〇ꓳ０Ｏｏ𐊒𐊫𐐄𐐬𐓂𐓪',
-	'1':'lı１',
+	'0':'߀𝛰〇𐊒𝟬𝜪Oዐ𝞞𝝤ⵔՕ𝟢𝗢𝘖ⲞОΟଠ𝟎𝐎০୦Ｏ𐊫𝙾ꓳ𐐄𝟶𝑶𝚶𐓂௦౦೦ഠဝ၀ჿᴏᴑⲟ０ｏ𐐬𐓪',
+	'1':'𝚕𝟏𝟙𝟣𝟭𝟷',
 	'2':'Ƨᒿ２𝟐𝟤𝟮𝟸',
 	'3':'ƷȜЗӠⳌꝪꞫ３',
-	'4':'Ꮞ４',
+	'4':'Ꮞ𝟒𝟜𝟦𝟰𝟺',
 	'5':'Ƽ５',
 	'6':'бᏮⳒ６',
 	'7':'７𐓒',
@@ -50,7 +57,7 @@ confusable = {
 	'F':'ϜᖴꓝꞘＦ𐊇𐊥𝟋',
 	'G':'ɢԌᏀᏳᏻꓖꮐＧ𝐆𝐺𝑮𝔾𝖦𝗚𝘎𝙂𝙶',
 	'H':'ʜΗНнᎻᕼⲎꓧＨ𐋏𝐇𝐻𝑯𝖧𝗛𝘏𝙃𝚮𝛨𝜢𝝜𝞖',
-	'J':'ͿЈᎫᒍᴊꓙꞲꭻＪ𝐉 𝐽 𝑱𝕁𝖩𝗝 𝙹',
+	'J':'ͿЈᎫᒍᴊꓙꞲꭻＪ𝐉𝐽𝑱𝕁𝖩𝗝𝙹',
 	'K':'ΚКᏦᛕKⲔꓗＫ',
 	'L':'ʟᏞᒪⅬⳐⳑꓡꮮＬ𐐛𐑃',
 	'M':'ΜϺМᎷᗰᛖⅯⲘꓟＭ𐊰𐌑𝐌𝑀𝑴𝕄𝖬𝗠𝘔𝙈𝙼𝚳𝛭𝜧𝝡𝞛',
@@ -73,11 +80,11 @@ confusable = {
 	'd':'ԁᏧᑯⅆⅾꓒｄ𝐝𝑑𝒅𝒹𝓭𝖽𝗱𝘥𝙙𝚍',
 	'e':'еҽ℮ｅ𝐞𝕖𝖾𝗲𝚎',
 	'f':'ẝꞙꬵｆ',
-	'g':'ƍɡցᶃｇ𝐠𝑔𝒈𝓰𝔤𝕘𝖌𝗀𝗴𝘨𝙜𝚐',
+	'g':'ƍɡցᶃｇ𝐠𝑔𝒈𝕘𝖌𝗀𝗴𝘨𝙜𝚐',
 	'h':'һᏂℎｈ𝒉𝕙𝗁𝗵𝘩𝙝𝚑',
 	'j':'ϳјｊ𝐣𝚓',
 	'k':'ｋ𝐤𝑘𝒌𝕜𝖐𝗄𝗸𝘬𝙠𝚔',
-	'm':'ｍ',
+	'm':'m𝕞𝙢𝗺ⅿ',
 	'n':'ոռｎ𝗇𝗻𝘯𝙣𝚗',
 	'o':'OΟОՕ௦౦೦ഠဝ၀ჿዐᴏᴑⲞⲟⵔ〇ꓳ０Ｏｏ𐊒𐊫𐐄𐐬𐓂𐓪',
 	'p':'ρϱр⍴ⲣｐ𝑝𝕡𝗉𝗽𝘱𝙥𝚙𝛒𝜌𝝆𝞀𝞺',
@@ -91,4 +98,5 @@ confusable = {
 	'x':'×хⅹ⤫⤬⨯ｘ𝐱𝑥𝒙𝔵𝕩𝖝𝗑𝘅𝘹𝙭𝚡',
 	'y':'ɣγуүყỿꭚｙ',
 	'z':'ᴢꮓｚ'
+	'z':'𝙯ᴢ𝗓𝕫ꮓ𝚣𝒛'
 }
