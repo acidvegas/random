@@ -1,0 +1,12 @@
+host: localhost
+port: 6697
+ssl: true
+
+channels:
+    - name: "#drugwars"
+
+nick: abc
+user: manhello
+real: manhello
+
+cmdkey: .

@@ -1,9 +1,0 @@
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\bin\Debug\SkypeQuote.exe.config
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\bin\Debug\SkypeQuote.exe
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\bin\Debug\SkypeQuote.pdb
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.csprojResolveAssemblyReference.cache
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.Main.resources
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.Properties.Resources.resources
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.csproj.GenerateResource.Cache
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.exe
-c:\users\john\documents\visual studio 2015\Projects\SkypeQuote\SkypeQuote\obj\Debug\SkypeQuote.pdb
