@@ -1,23 +1,32 @@
 #!/bin/sh
+# ipv6 clone helper script - developed by acidvegas (https://git.acid.vegas/random)
 interface='eth0'
-subnet='2607:5300:201:3000:' random: random: random: random4
+subnet='2607:5300:201:3000:'
 
-v6add() {
-	address=subnet
-	for i in $(seq $2); do
-		ip addr add $address dev $1
-		echo $address
-		echo $address >> v6.output
-	done
+rnd() {
+	echo $(tr -dc 'A-F0-9' < /dev/urandom | head -c4)
 }
 
-v6del() {
-	[ -f v6.output ]
-	address_list=$(cat v6.output)
-	for address in address_list
-		ip addr del $address dev $interface
-	done
+usage() {
+	echo "v6 add <num> | generate & add <nun> ipv6 addresses (saved to ~/.v6.log)"
+	echo "v6 del       | delete all ipv6 addresses created by this script"
 }
 
-v6add
-#v6del
+if [ "$#" = '2' ]; then
+	if [ "$1" = 'add' ]; then
+		for i in $(seq $2); do
+			address = "$subnet:$(rnd):$(rnd):$(rnd):$(rnd)"
+			sudo ip addr add $address dev $1
+			echo $address
+			echo $address >> .v6.log
+		done
+	elif [ "$1" = 'del' ]; then
+		while IFS= read -r address; do
+			sudo ip addr del $address dev $interface
+		done < .v6.log
+		rm .v6.log
+	else
+		usage
+else
+	usage
+fi
