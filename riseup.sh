@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# riseup vpn helper - developed by acidvegas (https://git.acid.vegas/random)
 DEFAULT_PORT=0
 DEFAULT_PROTOCOL=0
 DISABLE_IPV6=1
