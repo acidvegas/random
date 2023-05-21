@@ -1,0 +1,26 @@
+#!/bin/sh
+# 1secmail api - developed by acidvegas (https://git.acid.vegas/random)
+
+api="https://www.1secmail.com/api/v1"
+user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
+
+usage() {
+	echo "./shitmail domains                     | return a list of domains used with 1secmail"
+	echo "./shitmail generate [amount]           | generate a random email (optionally set the [amount] to generate more than 1)"
+	echo "./shitmail inbox <login> <domain>      | check the inbox for <login>@<domain>"
+	echo "./shitmail read  <login> <domain> <id> | read a specific email message from the <login>@<domain> inbox (read inbox to get message <id>)"
+}
+
+#todo: proper arguement checking & usage()
+if [ '$1' = 'domains']; then
+	curl --request GET --url "$api/?action=getDomainList" --user-agent "$user_agent" --header "accept: application/json" --header "content-type: application/json"
+elif [ '$1' = 'generate']; then
+	#todo: parse count arguement (optional, default to 1)
+	curl --request GET --url "$api/?action=genRandomMailbox&count=$1" --user-agent "$user_agent" --header "accept: application/json" --header "content-type: application/json"
+elif [ '$1' = 'inbox' ]; then
+	#todo: parse login & domain arguements
+	curl --request GET --url "$api/?action=getMessages&login=$1&domain=$2" --user-agent "$user_agent" --header "accept: application/json" --header "content-type: application/json"
+elif [ '$1' = 'read' ]; then
+	#todo: parse login, domain, & id arguments
+	curl --request GET --url "$api/?action=readMessage&login=$1&domain=$2&id=$3" --user-agent "$user_agent" --header "accept: application/json" --header "content-type: application/json"
+fi
