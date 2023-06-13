@@ -1,0 +1,318 @@
+#!/bin/sh
+# developed by acidvegas (https://git.acid.vegas/random)
+
+#set -ev
+
+##### settings ########################################################################
+CLONE_URL='remote'   # base url for cloning repositories ('remote' = remote.origin.url)
+CNAME=''             # create a CNAME file with a custom domain (empty = do not create)
+MAX_DESC=250         # maximum characters in a description to display (0 = all)
+MAX_COMMITS=10      # maximum number of commits to show (0 = all)
+MAX_COMMIT_MSG=100   # maximum characters in a commit message to display (0 = all)
+MAX_COMMIT_LINES=10 # maximum number of lines to show in a commit (0 = all)
+REPO_DIR=$HOME/dev/git/acidvegas   # directory containing repositories
+TITLE='Acidvegas Repositories' # title used on homepage
+WWW_DIR=$HOME/www    # directory to output to
+#######################################################################################
+
+generate_404() {
+	{
+		echo "<!doctype html>"
+		echo "<title>Error</title>"
+		echo "<style>body{background-color:#111;color:#fff;font-family:'Courier New',monospace}</style>" # font family
+		echo "<br><br><br><center><h1>404</h1></center>"
+	} > $WWW_DIR/404.html
+}
+
+generate_css() {
+	{
+		echo "*{font-family:'Courier New',monospace}"
+		echo "a{color:#8dc}"
+		echo "a:hover{color:#8cd}"
+		echo "body{background-color:#111;color:#fff;;margin-top:0px}"
+		echo "h1{margin:0px}"
+		echo "h1 a{color:#fff;text-decoration:none}"
+		echo "h2{margin:0px}"
+		echo "h4{color:#777;margin:0px}"
+		echo "h5{font-style:italic;font-weight:normal;margin:0px}"
+		echo "hr{border:none;border-bottom:1px dashed #fff}"
+		echo "pre{margin:0px}"
+		echo ".bold{font-weight:bold}"
+		echo ".branch{color:green;font-weight:bold}"
+		echo ".commit{color:olive}"
+		echo ".deletion{color:red}"
+		echo ".hunk{color:teal}"
+		echo ".insertion{color:green}"
+		echo ".reference{color:teal;font-weight:bold}"
+		echo ".remote{color:red;font-weight:bold}"
+		echo ".item:hover{background-color:#1a1a1a}"
+		echo ".item td{white-space:nowrap}"
+		echo ".linenumber{text-align:right;-moz-user-select:-moz-none;-khtml-user-select: none;-webkit-user-select:none}"
+		echo ".linenumber a{text-decoration:none}"
+		echo "#footer{border-top:1px dashed #fff;color:#444;font-size:smaller;margin-top:10px;padding-top:5px;width:100%}"
+		echo "#footer a{color:#aaa;text-decoration:none}"
+		echo "#main{border-collapse:collapse;table-layout:fixed}"
+		echo "#main td,th{padding-left:5px;padding-right:5px}"
+		echo "#navigation{color:#fff;font-weight:900;text-align:left}"
+	} > $WWW_DIR/style.css
+}
+
+generate_files() {
+	_REPO_DIR=$1
+	_REPO_NAME=$2
+	_REPO_URL=$3
+	shift 3
+	_REPO_DESC="${@}"
+	mkdir $WWW_DIR/$_REPO_NAME/files
+	if [ -f $_REPO_DIR/../README.md ]; then
+		curl https://api.github.com/markdown/raw -X "POST" -H "Content-Type: text/plain" -d "$(cat $_REPO_DIR/../README.md)" > $WWW_DIR/$REPO_NAME/files/README.md.html
+		OPT_FILES=" | <a href=\"files/README.md.html\">README</a>"
+	fi
+	if [ -f $_REPO_DIR/../LICENSE ]; then
+		OPT_FILES="$OPT_FILES | <a href=\"files/LICENSE.html\">LICENSE</a>"
+	fi
+	{
+		echo "<!doctype html>"
+		echo "<link rel=\"stylesheet\" href=\"../../style.css\">"
+		echo "<title>$_REPO_NAME</title>"
+		echo "<h1><a href=\"../index.html\" title=\"Home\">&#8962;&#xFE0E;</a> $_REPO_NAME</h1>"
+		echo "<div style=\"padding-left:25px\">"
+		echo "<h4>$_REPO_DESC</h4>"
+		echo "<h5>git clone <a href=\"$_REPO_URL\" title=\"$_REPO_NAME clone URL\">$_REPO_URL</a></h5>"
+		echo "<br><h4><a href=\"index.html\">Logs</a> | <a href=\"files.html\">Files</a> | <a href=\"refs.html\">Refs</a>$OPT_FILES</h4>"
+		echo "</div>"
+		echo "<hr>"
+		echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+		echo "<tr id=\"navigation\"><th></th><th>Mode</th><th>Name</th><th align=\"right\">Size</th></tr>"
+	} > $WWW_DIR/$_REPO_NAME/files/index.html
+	FILES=$(find $_REPO_DIR/../* -name .git -prune -o  -exec sh -c 'stat --format="%A|%n|%s" {}' \; | tail -n +2)
+	for f in $FILES; do
+		PERMISSIONS=$(echo "$f" | cut -d'|' -f1)
+		FILE_NAME=$(echo "$f" | cut -d'|' -f2)
+		FILE_SIZE=$(echo "$f" | cut -d'|' -f3)
+		echo "<tr class=\"item\"><td>$PERMISSIONS</td><td><a href=\"$FILE_NAME.html\">$FILE_NAME</a></td><td>$FILE_SIZE</td>" >> $WWW_DIR/$_REPO_NAME/files/index.html
+	done
+	echo "</table>" >> $WWW_DIR/$_REPO_NAME/files/index.html
+	generate_footer $WWW_DIR/$_REPO_NAME/files/index.html
+}
+
+generate_index() {
+	{
+		echo "<!doctype html>"
+		echo "<link rel=\"stylesheet\" href=\"style.css\">"
+		echo "<title>$TITLE</title>"
+		echo "<h1>&#8962;&#xFE0E; $TITLE</h1>"
+		echo "<hr>"
+		echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+		echo "<tr id=\"navigation\"><th>Name</th><th>Description</th><th>Owner</th><th>Last commit</th></tr>"
+	} > $WWW_DIR/index.html
+}
+
+generate_logs() {
+	_REPO_DIR=$1
+	_REPO_NAME=$2
+	_REPO_URL=$3
+	shift 3
+	_REPO_DESC="${@}"
+	mkdir -p $WWW_DIR/$_REPO_NAME/commit
+	{
+		echo "<!doctype html>"
+		echo "<link rel=\"stylesheet\" href=\"../style.css\">"
+		echo "<title>$_REPO_NAME</title>"
+		echo "<h1><a href=\"../index.html\" title=\"Home\">&#8962;&#xFE0E;</a> $_REPO_NAME</h1>"
+		echo "<div style=\"padding-left:25px\">"
+		echo "<h4>$_REPO_DESC</h4>"
+		echo "<h5>git clone <a href=\"$_REPO_URL\" title=\"$_REPO_NAME clone URL\">$_REPO_URL</a></h5>"
+		echo "<br><h4><a href=\"#\">Logs</a> | <a href=\"files.html\">Files</a> | <a href=\"refs.html\">Refs</a> | <a href=\"file/README.md.html\">README</a> | <a href=\"file/LICENSE.html\">LICENSE</a></h4>"
+		echo "</div>"
+		echo "<hr>"
+		echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+		echo "<tr id=\"navigation\"><th></th><th>Hash</th><th>Commit message</th><th>Author</th><th>Date</th><th align=\"right\">Files</th><th align=\"right\">+</th><th align=\"right\">-</th></tr>"
+	} > $WWW_DIR/$_REPO_NAME/index.html
+	REPO_COMMITS=$(git --git-dir $_REPO_DIR log --all --date=format:"%Y-%m-%d %H:%M" --pretty=format:"%G?|%GS|%GK|%h|%s|%cn|%cd")
+	REMAINING_COMMITS=$(echo "$REPO_COMMITS" | wc -l)
+	if [ $REMAINING_COMMITS -gt $MAX_COMMITS ]; then
+		REMAINING_COMMITS=$(($REMAINING_COMMITS-$MAX_COMMITS))
+		if [ $MAX_COMMITS -ne 0 ]; then
+			REPO_COMMITS=$(echo "$REPO_COMMITS" | head -n $MAX_COMMITS)
+		fi
+	else
+		REMAINING_COMMITS=0
+	fi
+	echo "$REPO_COMMITS" | while IFS= read -r line; do
+		COMMIT_SIGNED=$(echo $line | cut -d'|' -f1)
+		COMMIT_KEY=$(echo $line | cut -d'|' -f2)
+		COMMIT_KEYID=$(echo $line | cut -d'|' -f3)
+		if [ $COMMIT_SIGNED = 'G' ]; then
+			COMMIT_SIGNED="<span style=\"color:green\" title=\"$COMMIT_KEY&#13;$COMMIT_KEYID\">&#128274;&#xFE0E;</span>"
+		elif [ $COMMIT_SIGNED = 'B' ] || [ $COMMIT_SIGNED = 'U' ]  || [ $COMMIT_SIGNED = 'X' ] || [ $COMMIT_SIGNED = 'Y' ] || [ $COMMIT_SIGNED = 'R' ]; then
+			COMMIT_SIGNED="<span style=\"color:red\" title=\"$COMMIT_KEY&#13;$COMMIT_KEYID&#13;key is bad, invalid, expired, or revoked\">&#128274;&#xFE0E;</span>"
+		else
+			COMMIT_SIGNED=""
+		fi
+		COMMIT_HASH=$(echo $line | cut -d'|' -f4)
+		COMMIT_MESSAGE=$(echo $line | cut -d'|' -f5 | sed 's/&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/"/\&quot;/g;')
+		if [ $MAX_COMMIT_MSG -ne 0 ] && [ ${#COMMIT_MESSAGE} -gt $MAX_COMMIT_MSG ]; then
+			COMMIT_MESSAGE=$(echo $COMMIT_MESSAGE | cut -c 1-$MAX_COMMIT_MSG)
+		fi
+		COMMIT_AUTHOR=$(echo $line | cut -d'|' -f6)
+		COMMIT_DATE=$(echo $line | cut -d'|' -f7)
+		COMMIT_SUMMARY=$(git --git-dir $_REPO_DIR show $COMMIT_HASH --stat | grep -E "fil(e|es) changed" | awk '{files+=$1; inserted+=$4; deleted+=$6} END {printf "%s|+%s|-%s", files, inserted, deleted }')
+		COMMIT_FILES=$(echo $COMMIT_SUMMARY | cut -d'|' -f1)
+		COMMIT_INSERTIONS=$(echo $COMMIT_SUMMARY | cut -d'|' -f2)
+		COMMIT_DELETIONS=$(echo $COMMIT_SUMMARY | cut -d'|' -f3)
+		echo "<tr class=\"item\"><td>$COMMIT_SIGNED</td><td><a href=\"commit/$COMMIT_HASH.html\" title=\"View this commit\">$COMMIT_HASH</a></td><td>$COMMIT_MESSAGE</td><td>$COMMIT_AUTHOR</td><td>$COMMIT_DATE</td><td align=\"right\">$COMMIT_FILES</td><td align=\"right\">$COMMIT_INSERTIONS</td><td align=\"right\">$COMMIT_DELETIONS</td></tr>" >> $WWW_DIR/$_REPO_NAME/index.html
+		{
+			echo "<!doctype html>"
+			echo "<link rel=\"stylesheet\" href=\"../../style.css\">"
+			echo "<title>$_REPO_NAME :: $COMMIT_HASH</title>"
+			echo "<h1><a href=\"../index.html\" title=\"Back to Repository\">&larr;&#xFE0E;</a> $_REPO_NAME :: $COMMIT_HASH</h1>"
+			echo "<hr>"
+			echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+		} > $WWW_DIR/$_REPO_NAME/commit/$COMMIT_HASH.html
+		COMMIT_DIFF=$(git --git-dir $_REPO_DIR show $COMMIT_HASH -p --stat --decorate --color --expand-tabs=4 | tr -d '\0' | sed '/\\ No newline at end of file/d')
+		if [ $MAX_COMMIT_LINES -ne 0 ] && [ $(echo "$COMMIT_DIFF" | wc -l) -gt $MAX_COMMIT_LINES ]; then
+			COMMIT_DIFF=$(echo "$COMMIT_DIFF" | head -n $MAX_COMMIT_LINES)
+		fi
+		COMMIT_DIFF=$(echo "$COMMIT_DIFF" | sed 's/&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/"/\&quot;/g;' | tr -d '\r') # escape html
+		COMMIT_DIFF=$(echo "$COMMIT_DIFF" | sed 's/\[31m/<span class="deletion">/g; s/\[1\;31m/<span class="remote">/g; s/\[32m/<span class="insertion">/g; s/\[1\;32m/<span class="branch">/g; s/\[33m/<span class="commit">/g; s/\[36m/<span class="hunk">/g; s/\[1\;36m/<span class="reference">/g; s/\[1m/<span class="bold">/g; s/\[m/<\/span>/g') # add some color
+		COUNT=1
+		echo "$COMMIT_DIFF" | while IFS= read -r line; do
+			echo "<tr class=\"item\"><td class=\"linenumber\"><a href=\"#l$COUNT\" name=\"l$COUNT\">$COUNT</a></td><td><pre>$line</pre></td></tr>" >> $WWW_DIR/$_REPO_NAME/commit/$COMMIT_HASH.html
+			COUNT=`expr $COUNT + 1`
+		done
+		echo "</table>" >> $WWW_DIR/$_REPO_NAME/commit/$COMMIT_HASH.html
+		generate_footer $WWW_DIR/$_REPO_NAME/commit/$COMMIT_HASH.html
+
+	done
+	if [ $REMAINING_COMMITS -ne 0 ]; then
+		echo "<tr class=\"item\"><td></td><td></td><td><br><small><b><i>$REMAINING_COMMITS more commits remaining, fetch the repository</i></b></small></td><td></td><td></td><td></td><td></td><td></td></tr>" >> $WWW_DIR/$_REPO_NAME/index.html
+	fi
+	echo "</table>" >> $WWW_DIR/$_REPO_NAME/index.html
+	generate_footer $WWW_DIR/$_REPO_NAME/index.html
+}
+
+generate_readme() {
+	echo "not done"
+}
+
+generate_refs() {
+    _REPO_DIR=$1
+    _REPO_NAME=$2
+    _REPO_URL=$3
+    shift 3
+    _REPO_DESC="${@}"
+
+	_BRANCHES=$(git --git-dir $_REPO_DIR branch --sort=-committerdate --format='%(refname:short)|%(committerdate:short)|%(authorname)')
+	_TAGS=$(git --git-dir $_REPO_DIR log --tags --simplify-by-decoration --format="%S|%cs|%an")
+	{
+		echo "<!doctype html>"
+		echo "<link rel=\"stylesheet\" href=\"../style.css\">"
+		echo "<title>$_REPO_NAME</title>"
+		echo "<h1><a href=\"../index.html\" title=\"Home\">&#8962;&#xFE0E;</a> $_REPO_NAME</h1>"
+		echo "<div style=\"padding-left:25px\">"
+		echo "<h4>$_REPO_DESC</h4>"
+		echo "<h5>git clone <a href=\"$_REPO_URL\" title=\"$_REPO_NAME clone URL\">$_REPO_URL</a></h5>"
+		echo "<br><h4><a href=\"index.html\">Logs</a> | <a href=\"files.html\">Files</a> | <a href=\"#\">Refs</a> | <a href=\"file/README.md.html\">README</a> | <a href=\"file/LICENSE.html\">LICENSE</a></h4>"
+		echo "</div>"
+		echo "<hr>"
+		echo "<h2>Branches</h2>"
+		echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+		echo "<tr id=\"navigation\"><th>Name</th><th>Last commit date</th><th>Author</th></tr>"
+	} > $WWW_DIR/$_REPO_NAME/refs.html
+	echo "$_BRANCHES" | while IFS= read -r line; do
+		BRANCH_NAME=$(echo $line | cut -d'|' -f1)
+		BRANCH_DATE=$(echo $line | cut -d'|' -f2)
+		BRANCH_AUTHOR=$(echo $line | cut -d'|' -f3)
+		echo "<tr class=\"item\"><td>$BRANCH_NAME</td><td>$BRANCH_DATE</td><td>$BRANCH_AUTHOR</td></tr>" >> $WWW_DIR/$_REPO_NAME/refs.html
+	done
+	echo "</table>" >> $WWW_DIR/$_REPO_NAME/refs.html
+	if [ ! -z "$_TAGS" ]; then
+		{
+			echo "<br><h2>Tags</h2>"
+			echo "<table id=\"main\" cellpadding=\"0\" cellspacing=\"0\">"
+			echo "<tr id=\"navigation\"><th>Name</th><th>Last commit date</th><th>Author</th></tr>"
+		} >> $WWW_DIR/$_REPO_NAME/refs.html
+		echo "$_TAGS" | while IFS= read -r line; do
+			TAG_NAME=$(echo $line | cut -d'|' -f1)
+			TAG_DATE=$(echo $line | cut -d'|' -f2)
+			TAG_AUTHOR=$(echo $line | cut -d'|' -f3)
+			echo "<tr class=\"item\"><td>$TAG_NAME</td><td>$TAG_DATE</td><td>$TAG_AUTHOR</td></tr>" >> $WWW_DIR/$_REPO_NAME/refs.html
+		done
+		echo "</table>" >> $WWW_DIR/$_REPO_NAME/refs.html
+	else
+		echo "<br>No tags found for this repository" >> $WWW_DIR/$_REPO_NAME/refs.html
+	fi
+	generate_footer $WWW_DIR/$_REPO_NAME/refs.html
+}
+
+generate_yaml() {
+	{
+		echo "pages:"
+		echo "  stage: deploy"
+		echo "  script:"
+		echo "  - mkdir .public"
+		echo "  - cp -r * .public"
+		echo "  - mv .public public"
+		echo "  artifacts:"
+		echo "    paths:"
+		echo "    - public"
+		echo "  only:"
+		echo "  - master"
+	} > $WWW_DIR/.gitlab-ci.yml
+}
+
+generate_footer() {
+	_DATE=$(date +"%m/%d/%y")
+	echo "<div id=\"footer\">site generated by <a href=\"https://github.com/acidvegas/stagit\" target=\"_blank\">stagit</a> on <a href=\"#\">$_DATE</a></div>" >> $1
+}
+
+# main
+if [ ! -d $REPO_DIR ]; then
+	echo "'$REPO_DIR' directory does not exist" && exit 1
+fi
+REPOS=$(for f in $(find $REPO_DIR -type d -name mirror -prune -o -type d -name .git -print); do echo "$(basename $(dirname $f)):$(dirname $f)"; done | sort | cut -d':' -f2) # Can we clean improve this?
+if [ -z "$REPOS" ]; then
+	echo "'$REPO_DIR' contains no repositories" && exit 1
+elif [ -d $WWW_DIR ]; then
+	rm -rf $WWW_DIR/*
+else
+	mkdir -p $WWW_DIR
+fi
+if [ -n $CNAME ]; then
+	echo $CNAME > $WWW_DIR/CNAME
+fi
+generate_404 && generate_css && generate_index && generate_yaml
+for REPO in $REPOS; do
+	REPO=$REPO/.git # Can we do without this?
+	REPO_NAME=$(basename -s .git `git --git-dir $REPO config --get remote.origin.url`)
+	echo "generating $REPO_NAME files"
+	mkdir $WWW_DIR/$REPO_NAME
+	if [ -f $REPO/description ]; then
+		REPO_DESC=$(cat $REPO/description)
+		if [ "$REPO_DESC" = "Unnamed repository; edit this file 'description' to name the repository." ]; then
+			REPO_DESC="no description available"
+		fi
+		if [ "$REPO_DESC" = "no description available" ]; then
+			echo "edit description for $REPO_NAME ($REPO/description)"
+		elif [ $MAX_DESC -ne 0 ]; then
+			REPO_DESC=$(echo $REPO_DESC | cut -c -$MAX_DESC)
+		fi
+	else
+		echo "missing description file for $REPO_NAME ($REPO/description)"
+		REPO_DESC="no description available"
+	fi
+	REPO_OWNER=$(git --git-dir $REPO log --reverse -1 --pretty=format:'%an') # note: want to parse organization names for github/gitlab
+	REPO_LAST_COMMIT=$(git --git-dir $REPO log -1 --pretty=format:'%cs')
+	echo "<tr class=\"item\"><td><a href=\"$REPO_NAME\" title=\"$REPO_NAME\">$REPO_NAME</a></td><td>$REPO_DESC</td><td>$REPO_OWNER</td><td>$REPO_LAST_COMMIT</td></tr>" >> $WWW_DIR/index.html
+	if [ $CLONE_URL = 'remote' ]; then
+		REPO_URL=$(git --git-dir $REPO config --get remote.origin.url | sed 's#git@github.com:#https://github.com/#' | sed 's#git@gitlab.com:#https://gitlab.com/#')
+	else
+		REPO_URL=$CLONE_URL/$REPO_NAME.git
+	fi
+	generate_files   $REPO $REPO_NAME $REPO_URL $REPO_DESC
+	generate_logs    $REPO $REPO_NAME $REPO_URL $REPO_DESC
+	generate_refs    $REPO $REPO_NAME $REPO_URL $REPO_DESC
+done
+echo "</table>" >> $WWW_DIR/index.html
+generate_footer $WWW_DIR/index.html
