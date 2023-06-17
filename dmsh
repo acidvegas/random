@@ -1,0 +1,13 @@
+#!/bin/sh
+# distributed masscan helper - developed by acidvegas (https://git.acid.vegas/random)
+TOTAL=$(wc -l $1)
+i=1
+while IFS= read -r line; do
+	user=$(echo "$line" | cut -d':' -f1)
+	pass=$(echo "$line" | cut -d':' -f2)
+	host=$(echo "$line" | cut -d':' -f3)
+	port=$(echo "$line" | cut -d':' -f4)
+	sshpass -p $pass ssh $user@$host -p $port
+	ssh $line sh -c "wget https://raw.githubusercontent.com/robertdavidgraham/masscan/master/data/exclude.conf && masscan --range 0.0.0.0/0 -p $2 --banners --rate 808900.00 --excludefile exclude.conf --open-only -oB mass.log --shard $i/$TOTAL"
+	i=$((i+1))
+done < $1
