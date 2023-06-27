@@ -97,6 +97,9 @@ confusable = {
 	'w':'ɯѡԝաᴡꮃｗ',
 	'x':'×хⅹ⤫⤬⨯ｘ𝐱𝑥𝒙𝔵𝕩𝖝𝗑𝘅𝘹𝙭𝚡',
 	'y':'ɣγуүყỿꭚｙ',
-	'z':'ᴢꮓｚ'
+	'z':'ᴢꮓｚ',
 	'z':'𝙯ᴢ𝗓𝕫ꮓ𝚣𝒛'
 }
+
+for i in range(30):
+	print(confuse('IRC.SUPERNETS.ORG #SUPERBOWL GET FUCKED'))

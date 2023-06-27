@@ -1,0 +1,9 @@
+#!/bin/sh
+_ADDRESS="2001:0000:000:0000:0:0:0:0000"
+_GATEWAY="2001:0000:0000:0000:0000:0000:0000:0000"
+_PERSIST=1
+if [ $_PERSIST -eq 1 ]; then
+	echo -r "[Match]\nName=eth0\n\n[Network]\nDHCP=ipv4\n\nAddress=$_ADDRESS\nGateway=$_GATEWAY\n\n[DHCP]\nUseMTU=true" > /etc/systemd/network/eth0-dhcp.network
+else
+	ip addr add $_ADDRESS/64 dev eth0 & ip -6 route add $_GATEWAY dev eth0 & ip -6 route add default via $_GATEWAY dev eth0
+fi

@@ -1,0 +1,24 @@
+#!/bin/sh
+USER="sftp"
+
+mkdir -p /mnt/data/share
+chown root:root /mnt/data/share
+chmod 755 /mnt/data/share
+
+mkdir -p /srv/ssh/jail
+mount -o bind /mnt/data/share /srv/ssh/jail
+
+echo "Add the following to your /etc/fstab :"
+echo "/mnt/data/share /srv/ssh/jail  none   bind   0   0"
+
+useradd -s /usr/bin/nologin -d /srv/ssh/jail $USER
+passwd $USER
+
+mkdir /etc/ssh/authorized_keys
+chown root:root /etc/ssh/authorized_keys
+chmod 755 /etc/ssh/authorized_keys
+chmod 644 /etc/ssh/authorized_keys/*
+
+mkdir /srv/ssh/jail/$USER
+chown $USER:$USER /srv/ssh/jail/$USER
+chmod 755 /srv/ssh/jail/$USER

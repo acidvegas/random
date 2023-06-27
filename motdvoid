@@ -1,0 +1,3 @@
+#!/bin/bash
+git clone https://github.com/bartobri/no-more-secrets.git && cd no-more-secrets && make nms && make sneakers && sudo make install && cd && rm -rf no-more-secrets
+echo -e "#\!/bin/sh\nclear && (echo \"\" && echo \"   E N T E R   T H E   V O I D\"  && echo \"\") | nms -af red" | sudo tee $PREFIX/etc/profile.d/motd.sh
