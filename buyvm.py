@@ -23,7 +23,7 @@ for node in nodes:
 		for item in ('<li>','</li>','<b>','</b>'):
 			features = features.replace(item,'')
 		features = features.ljust(39)
-		stock    = server.split()[-1][0]
+		stock    = server.split()[-1]
 		if stock == '0':
 			stock = f'\033[31m{stock}\033[0m'
 		else:
