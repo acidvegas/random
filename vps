@@ -1,0 +1,18 @@
+#!/bin/sh
+apt-get update && apt-get upgrade
+echo "LANG=en_US.UTF-8" > /etc/locale.conf && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+localectl set-locale LANG=en_US.UTF-8
+echo -e "set boldtext\nset nohelp\nset nowrap\nset quickblank\nset tabsize 4\nunbind ^J main\nset selectedcolor black,red\ninclude \"/usr/share/nano/*.nanorc\"" > /etc/nanorc
+echo -e "export VISUAL=nano\nexport EDITOR=nano\nunset HISTFILE" >> /etc/profile
+echo -e "AuthenticationMethods publickey\nBanner /etc/issue\nClientAliveInterval 0\nDisableForwarding yes\nPermitRootLogin no\nPort CHANGEME\nPrintLastLog no" > /etc/ssh/sshd_config
+echo -e "[Journal]\nStorage=volatile\nSplitMode=none\nRuntimeMaxUse=500K" > /etc/systemd/journald.conf
+apt-get install cmake curl firehol gcc git htop make nano ncdu python3 python-pip screen sudo tor tmate
+apt-get install build-essential pkg-config gdb libssl-dev libpcre2-dev libargon2-0-dev libsodium-dev libc-ares-dev libcurl4-openssl-dev
+useradd -m -s /bin/bash acidvegas && gpasswd -a acidvegas sudo && passwd acidvegas
+
+mkdir $HOME/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ/fz4INjgCmSZOUiE9HL3+YRalyF/ptk1+qybcBCwUp" > $HOME/.ssh/authorized_keys
+chmod 700 $HOME/.ssh && chown -R acidvegas $HOME/.ssh && chmod 400 $HOME/.ssh/authorized_keys
+mkdir $HOME/build
+
+mkdir $HOME/.scripts && wget -O $HOME/.scipts/ddosmonit https://github.com/acidvegas/random/blob/master/ddosmonit && screen -S ddosmonit sudo ./.scripts/ddosmonit

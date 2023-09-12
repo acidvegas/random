@@ -1,0 +1,34 @@
+#!/bin/sh
+# arch linxu x86 helper - developed by acidvegas (https://git.acid.vegas/archlinux)
+
+MNT="sda"
+DEV="wlan0"
+
+lspci -v | grep -A1 -e VGA -e 3D
+iwctl --passphrase PASSWORD station $DEV connect SSID
+#fdisk # convert mbr to gpt
+mkfs.ext4 /dev/${MNT}p2
+#mkswap /dev/swap_partition
+mkfs.fat -F 32 /dev/${MNT}p1
+mount /dev/${MNT}p2 /mnt
+mount --mkdir /dev/${MNT}p1 /mnt/boot
+#swapon /dev/swap_partition
+pacstrap -K /mnt base linux linux-firmware # Microcodes: amd-ucode intel-ucode
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt
+
+ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
+hwclock --systohc
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+echo "LANG=en_US.UTF-8"  > /etc/locale.conf
+echo "wildwest" > /etc/hostname
+passwd
+bootctl install
+systemctl enable systemd-boot-update.service
+mkdir -p /etc/pacman.d/hooks
+echo -e "[Trigger]\nType = Package\nOperation = Upgrade\nTarget = systemd\n\n[Action]\nDescription = Gracefully upgrading systemd-boot...\nWhen = PostTransaction\nExec = /usr/bin/systemctl restart systemd-boot-update.service" > /etc/pacman.d/hooks/95-systemd-boot.hook
+echo -e "title   Arch Linux\n\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux.img\noptions root=\"/dev/mmcblk0p2\" rw" > /boot/loader/entries/arch.conf
+echo -e "title   Arch Linux (fallback initramfs)\n\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux-fallback.img\noptions root=\"/dev/mmcblk0p2\" rw" > /boot/loader/entries/arch-fallback.conf
+exit
+
+umount -R /mnt

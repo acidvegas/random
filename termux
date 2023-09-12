@@ -1,0 +1,36 @@
+#!bin/sh
+# termux helper - developed by acidvegas (https://git.acid.vegas/archlinux)
+set -xev
+passwd
+termux-setup-storage
+pkg upgrade
+pkg install abduco cmatrix gcc git exa make man nano ncdu oath-toolkit openssh python python-pip rsync tor wget
+wget https://github.com/64BitAsura/ohsnap-ttf/raw/master/ohsnap6x11r.icons.ttf /data/data/com.termux/files/home/.termux/font.ttf
+termux-reload-settings
+echo "\nE N T E R   T H E   V O I D\n\n" > $PREFIX/etc/motd
+echo "set boldtext\nset minibar\nnset nohelp\net nonewlines\nset nowrap\nset quickblank\nset tabsize 4\ninclude \"/usr/share/nano/*.nanorc\"" > $PREFIX/etc/nanorc
+{
+	echo "export LC_CTYPE=en_US.UTF-8"
+	echo "export LC_ALL=en_US.UTF-8"
+	echo "export GPG_TTY=$(tty)"
+
+	echo "# colors"
+	echo "alias diff='diff --color=auto'"
+	echo "alias grep='grep --color=auto'"
+	echo "alias ip='ip -color=auto'"
+	echo "alias ls='ls --color=auto'"
+
+	echo "# rewrites"
+	echo "alias exa='exa -aghl --git'"
+	echo "alias ssh-add='ssh-add -t 1h'"
+	echo "alias su='su -l'"
+
+	echo "# random"
+	echo "alias ..='cd ../'"
+	echo "alias busy=\"cat /dev/urandom | hexdump -C | grep 'ca fe'\""
+	echo "alias musync=\"rsync -vcahz --delete-before pi:music/ $HOME/storage/music\""
+	echo "alias updatemux=\"pkg update && pkg clean\""
+
+	echo "export PS1=\"\e[38;5;237m\T\e[0m \e[38;5;69m\w \e[0m: \""
+} > ~/.bashrc
+echo "shortcut.create-session=ctrl + t\n\nshortcut.next-session=ctrl + 2\nshortcut.previous-session=ctrl + 1\nshortcut.rename-session=ctrl + n\nbell-character=ignore" > $HOME/.termux/termux.properties

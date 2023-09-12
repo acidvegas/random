@@ -102,4 +102,4 @@ confusable = {
 }
 
 for i in range(30):
-	print(confuse('IRC.SUPERNETS.ORG #SUPERBOWL GET FUCKED'))
+	print(confuse('facebook'))

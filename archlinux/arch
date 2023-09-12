@@ -1,0 +1,73 @@
+#!/bin/sh
+set -xev
+
+GIT_URL="https://raw.githubusercontent.com/acidvegas/archlinux/master"
+RPI=0
+
+setup_initial() {
+	systemctl stop sshd && systemctl disable sshd
+	history -c && export HISTFILESIZE=0 && export HISTSIZE=0 && unset HISTFILE
+	[ -f /root/.bash_history ] && rm /root/.bash_history
+	passwd
+	[ $RPI -eq 1 ] && userdel -r alarm
+	useradd -m -s /bin/bash acidvegas && gpasswd -a acidvegas wheel && passwd acidvegas
+	timedatectl set-timezone America/New_York && timedatectl set-ntp true
+	echo "LANG=en_US.UTF-8" > /etc/locale.conf && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+}
+
+setup_wifi() {
+	echo "wildwest" > /etc/hostname
+	echo -e "[Match]\nName=wlan0\n\n[Network]\nDHCP=ipv4\nMulticastDNS=yes\n#Address=10.0.0.200/24\nGateway=10.0.0.1" > /etc/systemd/network/25-wireless.network
+	echo -e "[Resolve]\nDNS=8.8.4.4 8.8.8.8 2001:4860:4860::8888 2001:4860:4860::8844\nFallbackDNS=1.1.1.1 1.0.0.1 2606:4700:4700::1111 2606:4700:4700::1001\nMulticastDNS=yes\nDNSSEC=no\nCache=yes" > /etc/systemd/resolved.conf
+	ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+	wpa_passphrase MYSSID passphrase > /etc/wpa_supplicant/wpa_supplicant-wlan0.conf && chmod 600 /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+	systemctl start systemd-networkd && systemctl enable systemd-networkd
+	systemctl start systemd-resolved && systemctl enable systemd-resolved
+	systemctl start wpa_supplicant@wlan0 && systemctl enable wpa_supplicant@wlan0
+}
+
+setup_pacman() {
+	MI="Include = /etc/pacman.d/mirrorlist"
+	echo -e "[options]\nArchitecture = auto\nColor\nCheckSpace\nHoldPkg = pacman glibc\nParallelDownloads = 10\nSigLevel = Required DatabaseOptional\nLocalFileSigLevel = Optional\nRemoteFileSigLevel = Required\n\n" > /etc/pacman.conf
+	echo -e "[core-testing]\n$MI\n\n[core]\n$MI\n\n[extra-testing]\n$MI\n\n[extra]\n$MI\n\n" >> /etc/pacman.conf
+	[ $RPI -eq 0 ] && echo -e "[multilib-testing]\n$MI\n\n[multilib]\n$MI"     >> /etc/pacman.conf
+	[ $RPI -eq 1 ] && echo -e "[community]\n$MI\n\n[alarm]\n$MI\n\n[aur]\n$MI" >> /etc/pacman.conf
+	pacman-key --init
+	[ $RPI -eq 1 ] && pacman-key --populate archlinuxarm && echo 'Server = http://mirror.archlinuxarm.org/$arch/$repo' > /etc/pacman.d/mirrorlist
+	[ $RPI -eq 0 ] && pacman-key --populate archlinux
+	pacman -Syyu
+	pacman -S checkbashisms gcc go make patch pkg-config python python-pip
+	pacman -S asciiquarium cmatrix hollywood tty-solitaire
+	pacman -S abduco curl fzf git man nano ncdu progress rsync sudo tor unzip weechat which yank
+	pacman -S bandwhich exa glow gping gpm
+	pacman -S alsa-utils alsa-lib alsa-firmware libpulse pulseaudio cmus id3v2 mps-youtube python-eyed3 youtube-dl # TODO: check these
+	pacman -S dmenu dunst firefox scrot unclutter xclip
+	pacman -S acpi xorg-xbacklight xorg-xinit xorg-xrandr xorg-server xorg-xsetroot
+	pacman -S fakeroot xorg-font-util xorg-mkfontscale xorg-mkfontdir
+	[ $RPI -eq 1 ] && pacman -S xf86-video-fbdev
+	[ $RPI -eq 0 ] && pacman -S xf86-video-intel mesa lib32-mesa
+	#[ $RPI -eq 0 ] && pacman -S nvidia nvidia-utils lib32-nvidia-utils
+	[ $RPI -eq 1 ] && systemctl start gpm && systemctl enable gpm
+}
+
+setup_configs() {
+	if [ $RPI -eq 1 ]; then
+		sed -i 's/^console=tty1/console=tty3/' /boot/cmdline.txt && echo "quiet loglevel=3 rd.systemd.show_status=auto rd.udev.log_level=3 logo.nologo consoleblank=0" >> /boot/cmdline.txt
+		echo -e "avoid_warnings=1\ndisable_splash=1\ndtparam=act_led_trigger=none\ndtparam=act_led_activelow=on\ndtparam=audio=on" > /boot/config.txt
+		wget -O /etc/fstab $GIT_URL/etc/fstab
+	fi
+	wget -O /etc/issue $GIT_URL/etc/issue
+	wget -O /etc/sudoers.d/sudoers.lecture $GIT_URL/etc/sudoers.d/sudoers.lecture
+	echo -e "set boldtext\nset minibar\nset nohelp\nset nowrap\nset quickblank\nset tabsize 4\nunbind ^J main\nset selectedcolor black,red\ninclude \"/usr/share/nano/*.nanorc\"" > /etc/nanorc
+	echo -e "export VISUAL=nano\nexport EDITOR=nano\nunset HISTFILE\nln /dev/null ~/.bash_history -sf" >> /etc/profile
+	echo -e "AuthenticationMethods publickey\nBanner /etc/issue\nClientAliveInterval 0\nDisableForwarding yes\nPermitRootLogin no\nPort CHANGEME\nPrintLastLog no" > /etc/ssh/sshd_config
+	echo -e "Defaults lecture = always\nDefaults lecture_file = /etc/sudoers.d/sudoers.lecture\nroot ALL=(ALL) ALL\n%wheel ALL=(ALL) ALL" > /etc/sudoers
+	echo -e "[Journal]\nStorage=volatile\nSplitMode=none\nRuntimeMaxUse=500K" > /etc/systemd/journald.conf
+	mkdir -p /etc/systemd/system/systemd-logind.service.d && echo -e "[Service]\nSupplementaryGroups=proc" > /etc/systemd/system/systemd-logind.service.d/hidepid.conf
+	[ $RPI -eq 1 ] && echo "FONT=ohsnap6x11r" > /etc/vconsole.conf
+}
+
+setup_initial
+setup_wifi
+setup_pacman
+setup_configs

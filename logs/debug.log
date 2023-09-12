@@ -1,0 +1,5 @@
+2023-07-23 12:57 AM |     DEBUG | logga.py.<module>.26 | This message should go to the log file
+2023-07-23 12:57 AM |      INFO | logga.py.<module>.27 | So should this
+2023-07-23 12:57 AM |  CRITICAL | logga.py.<module>.28 | ok
+2023-07-23 12:57 AM |   WARNING | logga.py.<module>.29 | And this, too
+2023-07-23 12:57 AM |     ERROR | logga.py.<module>.30 | And non-ASCII stuff, too, like Øresund and Malmö
