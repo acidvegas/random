@@ -1,0 +1,53 @@
+#!/bin/sh
+# bigshuf - developed by acidvegas (https://git.acid.vegas/random)
+# shuffles the lines in large files, randomizing the order while using a memory-safe approach
+
+# Check if enough arguments are provided
+if [ "$#" -lt 3 ]; then
+	echo "Usage: $0 inputfile tempdir outputfile [lines per chunk]" >&2
+	exit 1
+fi
+
+# Parse input arguments
+inputfile="$1"
+tempdir="$2"
+outputfile="$3"
+lines_per_chunk="${4:-10000}"
+
+# Check if input file exists
+if [ ! -f "$inputfile" ]; then
+	echo "Error: Input file does not exist" >&2
+	exit 1
+fi
+
+# Calculate required and available space
+required_space=$(( $(wc -c < "$inputfile") * 2 ))
+available_space=$(df --block-size=1K --output=avail "$tempdir" | tail -n 1)
+
+# Check if there is enough disk space in tempdir
+if [ "$available_space" -lt "$required_space" ]; then
+	echo "Error: Not enough disk space in $tempdir" >&2
+	exit 1
+fi
+
+# Check if tempdir is writable
+if [ ! -d "$tempdir" ]; then
+	mkdir -p "$tempdir" || { echo "Error: Unable to create temp directory" >&2; exit 1; }
+elif [ ! -w "$tempdir" ]; then
+	echo "Error: Temp directory is not writable" >&2
+	exit 1
+fi
+
+# Split the file by lines
+split -l "$lines_per_chunk" "$inputfile" "$tempdir/chunk_" || { echo "Error: Failed to split file" >&2; rm -rf "$tempdir"; exit 1; }
+
+# Create a file with a shuffled list of chunk files
+find "$tempdir" -name 'chunk_*' | shuf > "$tempdir/chunks_list.txt" || { echo "Error: Failed to create shuffled chunks list" >&2; rm -rf "$tempdir"; exit 1; }
+
+# Shuffle each chunk based on the shuffled list and append to the output file
+while read -r chunk; do
+	shuf "$chunk" >> "$outputfile" || { echo "Error: Failed to shuffle and append chunk $chunk" >&2; break; }
+done < "$tempdir/chunks_list.txt"
+
+# Clean up
+rm -rf "$tempdir"

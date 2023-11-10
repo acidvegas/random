@@ -16,3 +16,21 @@ chmod 700 $HOME/.ssh && chown -R acidvegas $HOME/.ssh && chmod 400 $HOME/.ssh/au
 mkdir $HOME/build
 
 mkdir $HOME/.scripts && wget -O $HOME/.scipts/ddosmonit https://github.com/acidvegas/random/blob/master/ddosmonit && screen -S ddosmonit sudo ./.scripts/ddosmonit
+
+
+
+apt-get update && apt-get upgrade
+export TERM=screen-256color
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen
+echo "jump" > /etc/hostname
+echo ""                                >> /etc/profile
+echo "export HISTFILE=/dev/null"       >> /etc/profile
+echo "export LESSHISTFILE=/dev/null"   >> /etc/profile
+echo "export PYTHONHISTFILE=/dev/null" >> /etc/profile
+echo "export LANG=en_US.UTF-8"         >> /etc/profile
+echo "export LC_ALL=en_US.UTF-8"       >> /etc/profile
+useradd -m -s /bin/bash acidvegas
+gpasswd -a acidvegas sudo
+passwd acidvegas
+passwd
