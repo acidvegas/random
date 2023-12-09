@@ -30,5 +30,5 @@ while True:
 			else:
 				stock = f'\033[32m{stock}\033[0m'
 			print(f'{name} \033[1;30m|\033[0m {price} \033[1;30m|\033[0m {features} \033[1;30m|\033[0m {stock}')
-	time.sleep(300)
-
+	time.sleep(3600)
+	print('--------------------------------------------------')

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	fileName = "secure_file.dat"
+	fileName = "fuckfile.dat"
 	fileSize = 1 << 30 // 1 GB
 )
 

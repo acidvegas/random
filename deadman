@@ -1,0 +1,28 @@
+#!/bin/sh
+# USB Deadman's Switch - Developed by acidvegas (https://git.acid.vegas/random)
+
+# This script will create a udev rule that will execute a payload when a USB drive is removed.
+# udev is typically installed & running on most Linux distributions, but alwways verify.
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <usb_path> <payload_path>" && exit 1
+fi
+
+USB_PATH=$1
+PAYLOAD_PATH=$2
+
+if [ ! -e "$USB_PATH" ]; then
+    echo "Error: USB drive at $USB_PATH not found." && exit 1
+else if [ ! -f "$PAYLOAD_PATH" ]; then
+    echo "Error: Payload at $PAYLOAD_PATH not found." && exit 1
+fi
+
+LABEL=$(blkid -o value -s LABEL $USB_PATH)
+UUID=$(blkid -o value -s UUID $USB_PATH)
+
+echo "Deadman USB: $LABEL ($UUID)"
+
+mkdir -p /etc/udev/rules.d/
+printf "ACTION==\"remove\", ENV{ID_FS_UUID}==\"$UUID\", RUN+=\"$PAYLOAD_PATH\"\n" > /etc/udev/rules.d/99-usb-removal.rules
+
+udevadm control --reload-rules && udevadm trigger
