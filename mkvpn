@@ -1,0 +1,43 @@
+#!/bin/sh
+if [ $(id -u) -ne 0 ]; then
+    echo "error: must be ran as root" && exit 1
+fi
+
+apt-get update
+apt-get install wireguard-tools -y
+
+sysctl -w net.ipv4.ip_forward=1 && sudo sysctl -p # add to conf
+
+gen_server() {
+    umask 077
+    wg genkey | tee /etc/wireguard/privatekey | wg pubkey > /etc/wireguard/publickey
+
+    {
+        printf "[Interface]\n"
+        printf "Address = 10.0.0.1/24, fd00:db8:0:0::1/64\n"  # IPv4 and IPv6 addresses
+        printf "SaveConfig = true\n"
+        printf "ListenPort = CHANGEME\n"
+        printf "PrivateKey = $(cat /etc/wireguard/privatekey)\n\n"
+        printf "[Peer]\n"
+        printf "PublicKey = $(cat /etc/wireguard/client1_publickey)\n"  # Client 1 public key
+        printf "AllowedIPs = 10.0.0.2/32, fd00:db8:0:0::2/128\n"  # IPv4 and IPv6 for Client 1
+        printf "MaxConnections = 5\n"
+    } > /etc/wireguard/wg0.conf
+
+    systemctl enable wg-quick@wg0 && systemctl start wg-quick@wg0
+}
+
+gen_client() {
+    wg genkey | tee privatekey | wg pubkey > publickey
+    {
+        printf "[Interface]\n"
+        printf "Address = 10.0.0.2/32\n"  # NEED V6
+        printf "PrivateKey = $(cat /path/to/client/privatekey)\n"  # Client's private key
+        printf "DNS = 8.8.8.8\n\n"  # DNS server (can we exclude to allow machine)
+
+        printf "[Peer]\n"
+        printf "PublicKey = $(cat /path/to/server/publickey)\n"  # Server's public key
+        printf "AllowedIPs = 0.0.0.0/0, ::/0\n"  # Route all traffic through VPN
+        printf "Endpoint = [Server's IP Address]:[Server's ListenPort]\n"  # Server endpoint
+    } > /path/to/client/wg0.conf
+}

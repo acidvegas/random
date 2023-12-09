@@ -32,17 +32,17 @@ def scan():
 	while True:
 		ip = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
 		for port in scan_ports:
-		    sock = socket.socket()
-		    sock.settimeout(3)
-		    try:
-		        code = sock.connect((ip, port))
-		    except socket.error:
-		        pass
-		    else:
-		        if not code:
-		            print('FOUND ' + ip + ':' + str(port) + ' (' + scan_ports[port] + ')')
-		    finally:
-		        sock.close()
+			sock = socket.socket()
+			sock.settimeout(3)
+			try:
+				code = sock.connect((ip, port))
+			except socket.error:
+				pass
+			else:
+				if not code:
+					print('FOUND ' + ip + ':' + str(port) + ' (' + scan_ports[port] + ')')
+			finally:
+				sock.close()
 
 for i in range(100):
 	threading.Thread(target=scan).start()
