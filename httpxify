@@ -1,0 +1,38 @@
+#!/bin/sh
+# httpx gotify alert - developed by acidvegas (https://git.acid.vegas)
+
+GOTIFY_URL="https://push.change.me:5000"
+GOTIFY_TOKEN="cHaNgEmE"
+
+send_notification() {
+	result=$1
+	title=$2
+	data=$3
+
+	HOST=$(cat /etc/hostname)
+
+	if [ $result -eq 0 ]; then
+		status="completed"
+	elif [ $result -eq 69 ]; then
+		status="initiated"
+	elif [ $result -gt 128 ]; then
+		status="killed"
+	else
+		status="error"
+	fi
+
+	message="$title scan on $HOST for $data has changed to $status"
+
+	curl -X POST "$GOTIFY_URL/message?token=$GOTIFY_TOKEN" -F "title=$title" -F "message=$message" -F "priority=1"
+}
+
+for zone in $(find /mnt/slab/zones -name "*.txt" | shuf); do
+	tld=$(basename "$zone" .txt)
+	if [ ! -f "/mnt/slab/json/zone.$tld.txt" ]; then
+		echo "$tld" > $SCAN_DIR/.last-zone # For debugging purposes
+		send_notification 69 "httpx" $tld
+		httpx -l "$zone" -t 300 -rl 300 -sc -location -favicon -title -bp -td -ip -cname -mc 200,201,301,302,303,307,308 -fr -stream -sd -j -o "/mnt/slab/json/zone.$tld.txt" -v
+		result=$?
+		handle_result $result "httpx" $tld
+	fi
+done
