@@ -1,0 +1,67 @@
+#!/bin/bash
+# wave egenrator - developed by acidvegas (https://git.acid.vegas)
+
+random_color() {
+    echo $((RANDOM % 256))
+}
+
+rainbow_color() {
+    local index="$1"
+    local colors=("196" "202" "208" "214" "220" "226" "190" "154" "118" "82" "46" "47" "48" "49" "50" "51" "45" "39" "33" "27" "21" "57" "93" "129" "165" "201")
+    echo "${colors[index % ${#colors[@]}]}"
+}
+
+print_wave() {
+    local chars="$1"
+    local len="$2"
+    local delay="$3"
+    local color_mode="$4"
+    local pulse_mode="$5"
+    local color_idx=0
+
+    while :; do
+        printf "\r"
+        for ((i = 0; i < len; i++)); do
+            if [ "$color_mode" == "rainbow" ]; then
+                color="\033[38;5;$(rainbow_color "$color_idx")m"
+            elif [ "$color_mode" == "chaos" ]; then
+                color="\033[38;5;$(random_color)m"
+            else
+                color=""
+            fi
+
+            char="${chars:i:1}"
+            if [ "$pulse_mode" == "on" ]; then
+                if [ $((RANDOM % 2)) -eq 0 ]; then
+                    char="${chars:i+1:1}"
+                else
+                    char="${chars:i-1:1}"
+                fi
+            fi
+
+            printf "$color$char"
+            color_idx=$((color_idx + 1))
+        done
+
+        sleep "$delay"
+
+        chars="${chars: -1}${chars%?}"
+    done
+}
+
+length="${1:-15}"
+delay="${2:-0.05}"
+color_mode="none"
+pulse_mode="off"
+
+if [ "$3" == "-r" ]; then
+    color_mode="rainbow"
+elif [ "$3" == "-c" ]; then
+    color_mode="chaos"
+elif [ "$3" == "-p" ]; then
+    pulse_mode="on"
+fi
+
+wave_chars="▁▂▃▄▅▆▇█▇▆▅▄▃▂▁"
+wave_chars="$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars$wave_chars"
+print_wave "$wave_chars" "$length" "$delay" "$color_mode" "$pulse_mode"

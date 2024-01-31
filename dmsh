@@ -8,6 +8,6 @@ while IFS= read -r line; do
 	host=$(echo "$line" | cut -d':' -f3)
 	port=$(echo "$line" | cut -d':' -f4)
 	sshpass -p $pass ssh $user@$host -p $port
-	ssh $line sh -c "wget https://raw.githubusercontent.com/robertdavidgraham/masscan/master/data/exclude.conf && masscan --range 0.0.0.0/0 -p $2 --banners --rate 808900.00 --excludefile exclude.conf --open-only -oB mass.log --shard $i/$TOTAL"
+	ssh $line sh -c "wget https://raw.githubusercontent.com/robertdavidgraham/masscan/master/data/exclude.conf && masscan --range 0.0.0.0/0 -p $2 --banners --rate 50000 --excludefile exclude.conf --open-only -oJ $port.json --shard $i/$TOTAL"
 	i=$((i+1))
 done < $1

@@ -1,0 +1,39 @@
+#!/bin/sh
+# masscan gotify alert - developed by acidvegas (https://git.acid.vegas)
+
+GOTIFY_URL="https://push.change.me:5000"
+GOTIFY_TOKEN="cHaNgEmE"
+
+send_notification() {
+	result=$1
+	title=$2
+	data=$3
+
+	HOST=$(cat /etc/hostname)
+
+	if [ $result -eq 0 ]; then
+		status="completed"
+	elif [ $result -eq 69 ]; then
+		status="initiated"
+	elif [ $result -gt 128 ]; then
+		status="killed"
+	else
+		status="error"
+	fi
+
+	message="$title scan on $HOST for $data has changed to $status"
+
+	curl -X POST "$GOTIFY_URL/message?token=$GOTIFY_TOKEN" -F "title=$title" -F "message=$message" -F "priority=1"
+}
+
+[ $# -ne 1 ] && echo "usage: ./masscanify <ports>" && exit 1
+
+ports=$1
+
+send_notification 69 "masscan" $ports
+
+masscan 0.0.0.0/0 -p${ports} --banners --source-port 61000 --open-only --rate 50000 --excludefile exclude.conf -oJ output.json --interactive
+
+result=$?
+
+send_notification $result "masscan" $ports

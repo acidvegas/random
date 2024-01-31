@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Global Variables for Fine-Tuning
+min_unicode=32  # Minimum Unicode value for random character generation
+max_unicode=65535  # Maximum Unicode value for random character generation
+min_color=16  # Minimum ANSI color code for text and background
+max_color=255  # Maximum ANSI color code for text and background
+line_length=100000  # Maximum line length until it's reset
+reset_line_chars=900  # Characters to remove when resetting the line
+emoji_frequency_min=1  # Minimum frequency for emoji insertion (characters)
+emoji_frequency_max=10  # Maximum frequency for emoji insertion (characters)
+sleep_min=100  # Minimum sleep delay between characters (microseconds)
+sleep_max=1000  # Maximum sleep delay between characters (microseconds)
+text_color_frequency_min=10000  # Minimum frequency for text color change (characters)
+text_color_frequency_max=5000000  # Maximum frequency for text color change (characters)
+background_color_frequency_min=100  # Minimum frequency for background color change (characters)
+background_color_frequency_max=3000  # Maximum frequency for background color change (characters)
+reset_color_frequency_min=100  # Minimum frequency for color reset (characters)
+reset_color_frequency_max=500  # Maximum frequency for color reset (characters)
+reset_line_frequency=500  # Reset line every 100 characters
+reset_line_delay=0.05  # Delay after resetting line (seconds)
+
+# Function to generate a random Unicode character
+generate_random_unicode_char() {
+  random_unicode=$((min_unicode + RANDOM % (max_unicode - min_unicode + 1)))
+  printf "\\$(printf '%03o' "$random_unicode")"
+}
+
+# Function to generate a random ANSI escape code for color
+generate_random_color() {
+  random_color=$((min_color + RANDOM % (max_color - min_color + 1)))
+  printf "\\e[38;5;%sm" "$random_color"
+}
+
+# Function to generate a random ANSI escape code for background color
+generate_random_background_color() {
+  random_color=$((min_color + RANDOM % (max_color - min_color + 1)))
+  printf "\\e[48;5;%sm" "$random_color"
+}
+
+# Function to generate a random emoji
+generate_random_emoji() {
+  random_emoji_code=$((RANDOM % (129511 - 128512 + 1) + 128512))
+  printf "\\U$(printf '%04x' "$random_emoji_code")"
+}
+
+# Initialize an empty line
+line=""
+current_line_length=0
+
+# Counter for tracking character count
+char_count=0
+
+# Initialize variables for tracking various frequencies
+emoji_insertion_frequency=0
+sleep_delay_random=0
+text_color_change_frequency=0
+background_color_change_frequency=0
+reset_color_frequency=0
+color_reset=false
+
+while true; do
+  # Generate a random Unicode character
+  random_char=$(generate_random_unicode_char)
+
+  # Append the new character to the line with random formatting
+  formatted_char="$(generate_random_color)$(generate_random_background_color)$random_char\\e[0m"
+  line="$line$formatted_char"
+
+  # Increment character count
+  char_count=$((char_count + 1))
+
+  # Check if it's time to insert an emoji (random frequency)
+  if [ "$emoji_insertion_frequency" -gt 0 ] && [ $((char_count % emoji_insertion_frequency)) -eq 0 ]; then
+    random_emoji=$(generate_random_emoji)
+    line="$line$random_emoji"
+  fi
+
+  # Check if it's time to change text color (random frequency)
+  if [ "$text_color_change_frequency" -gt 0 ] && [ $((char_count % text_color_change_frequency)) -eq 0 ]; then
+    generate_random_color  # Generate a new random text color
+  fi
+
+  # Check if it's time to change background color (random frequency)
+  if [ "$background_color_change_frequency" -gt 0 ] && [ $((char_count % background_color_change_frequency)) -eq 0 ]; then
+    generate_random_background_color  # Generate a new random background color
+  fi
+
+  # Check if it's time to reset colors (random frequency)
+  if [ "$reset_color_frequency" -gt 0 ] && [ $((char_count % reset_color_frequency)) -eq 0 ]; then
+    color_reset=true
+  fi
+
+  # Limit the line length and reset when it reaches a certain length
+  current_line_length=${#line}
+  if [ "$current_line_length" -gt "$line_length" ]; then
+    line="${line:$reset_line_chars}"
+    current_line_length=$line_length
+  fi
+
+  # Print the line with random formatting
+  if [ "$color_reset" = true ]; then
+    echo -n -e "\\e[0m$line"  # Reset colors
+    color_reset=false
+  else
+    echo -n -e "$line"
+  fi
+
+  # Sleep for a randomized time between specified min and max delays
+  sleep_delay_random=$((RANDOM % (sleep_max - sleep_min + 1) + sleep_min))
+  sleep_time=$(bc -l <<< "scale=5; $sleep_delay_random / 1000000")  # Convert to seconds
+  sleep "$sleep_time"
+
+  # Randomly pick a spot on the terminal to start a new line every reset_line_frequency characters
+  if [ $((char_count % reset_line_frequency)) -eq 0 ]; then
+    tput cup $((RANDOM % 30)) $((RANDOM % 100))
+    current_line_length=0
+    line=""
+    color_reset=true  # Apply color reset
+    reset_chars=$((RANDOM % 91 + 10))  # Append 100 to 1000 spaces
+    for _ in $(seq 1 "$reset_chars"); do
+      line="$line "
+    done
+    sleep "$reset_line_delay"  # Delay after resetting line
+  fi
+
+  # Check if it's time to change background color (random frequency)
+  if [ "$background_color_change_frequency" -gt 0 ] && [ $((char_count % background_color_change_frequency)) -eq 0 ]; then
+    generate_random_background_color  # Generate a new random background color
+  fi
+done
